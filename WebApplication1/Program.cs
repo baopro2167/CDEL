@@ -12,14 +12,15 @@ using Services.ServiceSS;
 using Repositories.ServiceRepo;
 using Repositories.ExRequestRepo;
 using Services.ExRequestSS;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
-var port = Environment.GetEnvironmentVariable("PORT") ?? "8080"; // Cổng mặc định nếu không có PORT
+//var port = Environment.GetEnvironmentVariable("PORT") ?? "8080"; // Cổng mặc định nếu không có PORT
 
-builder.WebHost.ConfigureKestrel(serverOptions =>
-{
-    serverOptions.ListenAnyIP(int.Parse(port));  // Lắng nghe cổng từ Railway
-});
+//builder.WebHost.ConfigureKestrel(serverOptions =>
+//{
+//    serverOptions.ListenAnyIP(int.Parse(port));  // Lắng nghe cổng từ Railway
+//});
 
 // Add services to the container.
 builder.Services.AddScoped<IKitService, KitService>();
@@ -60,12 +61,11 @@ var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 
-
+if (app.Environment.IsDevelopment())
+{
     app.UseSwagger();
     app.UseSwaggerUI();
-
-
-    app.UseHttpsRedirection();  // Chuyển hướng từ HTTP sang HTTPS
+}
 
 
 app.UseAuthorization();
