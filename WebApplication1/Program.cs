@@ -1,4 +1,4 @@
-using Model;
+﻿using Model;
 using Microsoft.EntityFrameworkCore;
 using Services.KitS;
 using Repositories.KitRepo;
@@ -45,6 +45,13 @@ builder.Services.AddSwaggerGen(options =>
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     options.IncludeXmlComments(xmlPath);
 });
+
+
+builder.WebHost.ConfigureKestrel(serverOptions =>
+{
+    serverOptions.ListenAnyIP(8080);  // Lắng nghe trên cổng 8080
+});
+
 
 var app = builder.Build();
 
