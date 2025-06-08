@@ -14,6 +14,11 @@ using Repositories.ExRequestRepo;
 using Services.ExRequestSS;
 
 var builder = WebApplication.CreateBuilder(args);
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080"; // Default port is 8080
+builder.WebHost.ConfigureKestrel(serverOptions =>
+{
+    serverOptions.ListenAnyIP(int.Parse(port));  // Use the PORT environment variable
+});
 
 // Add services to the container.
 builder.Services.AddScoped<IKitService, KitService>();
@@ -47,10 +52,7 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 
-builder.WebHost.ConfigureKestrel(serverOptions =>
-{
-    serverOptions.ListenAnyIP(8080);  // Lắng nghe trên cổng 8080
-});
+
 
 
 var app = builder.Build();
