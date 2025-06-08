@@ -14,10 +14,11 @@ using Repositories.ExRequestRepo;
 using Services.ExRequestSS;
 
 var builder = WebApplication.CreateBuilder(args);
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080"; // Cổng mặc định nếu không có PORT
+
 builder.WebHost.ConfigureKestrel(serverOptions =>
 {
-    // Lắng nghe tất cả các yêu cầu HTTP trên cổng 8080
-    serverOptions.ListenAnyIP(8080);
+    serverOptions.ListenAnyIP(int.Parse(port));  // Lắng nghe cổng từ Railway
 });
 
 // Add services to the container.
