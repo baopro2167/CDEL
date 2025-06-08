@@ -15,12 +15,12 @@ using Services.ExRequestSS;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
-//var port = Environment.GetEnvironmentVariable("PORT") ?? "8080"; // Cổng mặc định nếu không có PORT
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080"; // Cổng mặc định nếu không có PORT
 
-//builder.WebHost.ConfigureKestrel(serverOptions =>
-//{
-//    serverOptions.ListenAnyIP(int.Parse(port));  // Lắng nghe cổng từ Railway
-//});
+builder.WebHost.ConfigureKestrel(serverOptions =>
+{
+    serverOptions.ListenAnyIP(int.Parse(port));  // Lắng nghe cổng từ Railway
+});
 
 // Add services to the container.
 builder.Services.AddScoped<IKitService, KitService>();
@@ -63,7 +63,16 @@ var app = builder.Build();
 
 
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "API V1");
+        c.RoutePrefix = string.Empty; // Swagger UI sẽ được đặt ở trang chủ
+    });
+if (!app.Environment.IsDevelopment())
+{
+    // Chỉ kích hoạt HTTP redirect khi môi trường không phải phát triển
+    app.UseHttpsRedirection();  // Chuyển hướng tất cả HTTP yêu cầu thành HTTPS
+}
 
 
 
