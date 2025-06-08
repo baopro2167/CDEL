@@ -65,10 +65,8 @@ var app = builder.Build();
     app.UseSwaggerUI();
 
 
-if (!app.Environment.IsDevelopment())  // Chỉ bật chuyển hướng HTTPS khi không phải môi trường phát triển
-{
     app.UseHttpsRedirection();  // Chuyển hướng từ HTTP sang HTTPS
-}
+
 
 app.UseAuthorization();
 app.UseRouting();
