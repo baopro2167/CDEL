@@ -68,11 +68,10 @@ var app = builder.Build();
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "API V1");
         c.RoutePrefix = string.Empty; // Swagger UI sẽ được đặt ở trang chủ
     });
-if (!app.Environment.IsDevelopment())
-{
+
     // Chỉ kích hoạt HTTP redirect khi môi trường không phải phát triển
     app.UseHttpsRedirection();  // Chuyển hướng tất cả HTTP yêu cầu thành HTTPS
-}
+
 
 
 
