@@ -21,6 +21,17 @@ builder.WebHost.ConfigureKestrel(serverOptions =>
 {
     serverOptions.ListenAnyIP(int.Parse(port));  // Lắng nghe cổng từ Railway
 });
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowLocalhost", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173")
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials();
+    });
+});
+
 
 // Add services to the container.
 builder.Services.AddScoped<IKitService, KitService>();
@@ -74,7 +85,7 @@ var app = builder.Build();
 
 
 
-
+app.UseCors("AllowLocalhost");
 app.UseAuthorization();
 app.UseRouting();
 app.MapControllers();
