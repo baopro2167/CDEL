@@ -25,21 +25,13 @@ namespace Services.KitDeliverySS
                 throw new ArgumentNullException(nameof(addKitDeliveryDto), "Kit delivery data is required.");
             }
 
-            if (addKitDeliveryDto.ReceivedAt <= addKitDeliveryDto.SentAt)
-            {
-                throw new ArgumentException("ReceivedAt must be after SentAt.", nameof(addKitDeliveryDto.SentAt));
-            }
+           
 
             var delivery = new KitDelivery
             {
                 RequestId = addKitDeliveryDto.RequestId,
                 KitId = addKitDeliveryDto.KitId,
-                SentAt = addKitDeliveryDto.SentAt.Kind == DateTimeKind.Unspecified
-         ? DateTime.SpecifyKind(addKitDeliveryDto.SentAt, DateTimeKind.Utc)
-         : addKitDeliveryDto.SentAt.ToUniversalTime(),
-                ReceivedAt = addKitDeliveryDto.ReceivedAt.Kind == DateTimeKind.Unspecified
-         ? DateTime.SpecifyKind(addKitDeliveryDto.ReceivedAt, DateTimeKind.Utc)
-         : addKitDeliveryDto.ReceivedAt.ToUniversalTime(),
+              
                 StatusId = addKitDeliveryDto.StatusId
             };
 
@@ -87,9 +79,7 @@ namespace Services.KitDeliverySS
             {
                 throw new KeyNotFoundException($"kitDeliveries with ID {id} not found.");
             }
-            kitDeliveries.ReceivedAt = updateKitDeliveryDto.ReceivedAt.Kind == DateTimeKind.Unspecified
-       ? DateTime.SpecifyKind(updateKitDeliveryDto.ReceivedAt, DateTimeKind.Utc)
-       : updateKitDeliveryDto.ReceivedAt.ToUniversalTime();
+          
             kitDeliveries.StatusId = updateKitDeliveryDto.StatusId;
 
             await _kitDeliveryRepository.UpdateAsync(kitDeliveries);
