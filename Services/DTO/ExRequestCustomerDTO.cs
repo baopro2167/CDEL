@@ -9,7 +9,7 @@ namespace Services.DTO
     public class ExRequestCustomerDTO
     {
         public int RequestId { get; set; }
-        public string ServiceName { get; set; }
+        public string? ServiceName { get; set; }
         public Boolean StatusId { get; set; }
         public DateTime CreatedAt { get; set; }
     }

@@ -33,7 +33,7 @@ namespace Repositories.KitDeliveryRepo
                 await _context.SaveChangesAsync();
             }
         }
-
+       
         public IQueryable<KitDelivery> GetAll()
         {
             return _context.KitDeliverys.AsQueryable();

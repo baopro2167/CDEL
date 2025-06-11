@@ -21,9 +21,9 @@ namespace Model
         [Required]
         public int KitId { get; set; }
 
-        public DateTime? SentAt { get; set; }
+        public DateTime? SentAt { get; set; }   = DateTime.UtcNow;
 
-        public DateTime? ReceivedAt { get; set; }
+        public DateTime? ReceivedAt { get; set; } = DateTime.UtcNow;
 
         public Boolean? StatusId { get; set; }
 

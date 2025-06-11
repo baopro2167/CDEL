@@ -36,6 +36,8 @@ namespace Services.KitDeliverySS
             };
 
             await _kitDeliveryRepository.AddAsync(delivery);
+         
+
             return delivery;
         }
 
