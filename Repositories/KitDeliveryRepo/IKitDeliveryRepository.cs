@@ -11,7 +11,7 @@ namespace Repositories.KitDeliveryRepo
     {
         Task<IEnumerable<KitDelivery>> GetkitAsync();
         Task<KitDelivery> GetByIdAsync(int id);
-        Task<KitDelivery> GetFullDeliveryWithRelatedEntities(int deliveryId);
+        
         Task<KitDelivery> AddAsync(KitDelivery kitDelivery);
         Task<KitDelivery> UpdateAsync(KitDelivery kitDelivery);
         Task DeleteAsync(int id);
