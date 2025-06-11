@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Model
@@ -26,8 +27,9 @@ namespace Model
         public DateTime? ReceivedAt { get; set; } = DateTime.UtcNow;
 
         public Boolean? StatusId { get; set; }
-
+        [JsonIgnore]
         public virtual ExaminationRequest Request { get; set; } = null!;
+        [JsonIgnore]
         public virtual Kit Kit { get; set; } = null!;
 
         
