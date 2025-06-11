@@ -20,7 +20,7 @@ namespace Services.DTO
 
         public DateTime ReceivedAt { get; set; }
 
-        public int? StatusId { get; set; }
+        public Boolean? StatusId { get; set; }
 
 
 

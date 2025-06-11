@@ -28,21 +28,13 @@ namespace Services.KitS
                 throw new ArgumentNullException(nameof(createKitDto), "kit data is required.");
             }
 
-            if (createKitDto.UpdateAt <= createKitDto.CreateAt)
-            {
-                throw new ArgumentException("EndDate must be after StartDate.", nameof(createKitDto.UpdateAt));
-            }
+           
 
             var kit = new Kit
             {
                 Name = createKitDto.Name,
                 Description = createKitDto.Description,
-                CreateAt = createKitDto.CreateAt.Kind == DateTimeKind.Unspecified
-         ? DateTime.SpecifyKind(createKitDto.CreateAt, DateTimeKind.Utc)
-         : createKitDto.CreateAt.ToUniversalTime(),
-                UpdateAt = createKitDto.UpdateAt.Kind == DateTimeKind.Unspecified
-         ? DateTime.SpecifyKind(createKitDto.UpdateAt, DateTimeKind.Utc)
-         : createKitDto.UpdateAt.ToUniversalTime(),
+               
             };
             await _kitRepository.AddAsync(kit);
            

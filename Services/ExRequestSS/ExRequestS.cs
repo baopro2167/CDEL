@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using Model;
 using Repositories.ExRequestRepo;
 using Repositories.Pagging;
+using Repositories.ServiceRepo;
+using Repositories.ServiceSMRepo;
 using Services.DTO;
 namespace Services.ExRequestSS
 {
@@ -13,9 +15,11 @@ namespace Services.ExRequestSS
 
     {
         private readonly IExRequestRepository _exRequestRepository;
-        public ExRequestS(IExRequestRepository exRequestRepository)
+        private readonly IServiceRepository _serviceRepository;
+        public ExRequestS(IExRequestRepository exRequestRepository, IServiceRepository serviceRepository)
         {
             _exRequestRepository = exRequestRepository;
+            _serviceRepository = serviceRepository;
         }
         public async Task<IEnumerable<ExaminationRequest>> GetAllAsync()
         {
@@ -35,6 +39,30 @@ namespace Services.ExRequestSS
             IQueryable<ExaminationRequest> requests = _exRequestRepository.GetByAccountId(Userid).AsQueryable();
             return await PaginatedList<ExaminationRequest>.CreateAsync(requests, pageNumber, pageSize);
         }
+
+
+        public async Task<IEnumerable<ExRequestCustomerDTO>> GetExaminationRequests(int userId, int pageNumber, int pageSize)
+        {
+            // Lấy tất cả các yêu cầu kiểm tra của khách hàng
+            IQueryable<ExaminationRequest> requests = _exRequestRepository.GetByAccountId(userId).AsQueryable();
+
+            // Phân trang các yêu cầu kiểm tra
+            var paginatedRequests = await PaginatedList<ExaminationRequest>.CreateAsync(requests, pageNumber, pageSize);
+
+            // Chuyển đổi dữ liệu sang ExaminationRequestDTO
+            var examinationRequestDTOs = paginatedRequests.Items.Select(request => new ExRequestCustomerDTO
+            {
+                RequestId = request.Id,
+                ServiceName = _serviceRepository.GetByIdAsync(request.ServiceId).Result.Name,  // Lấy tên dịch vụ từ Service repository
+                StatusId = request.StatusId,  // Trả về StatusId kiểu Boolean
+                CreatedAt = request.CreateAt  // Sử dụng CreateAt từ mô hình
+            });
+
+            return examinationRequestDTOs;
+        }
+
+
+
         public async Task<ExaminationRequest> AddAsync(AddExRequestDTO addExRequestDto)
         {
             if (addExRequestDto == null)

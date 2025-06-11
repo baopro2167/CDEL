@@ -25,7 +25,7 @@ namespace Model
 
         public DateTime? ReceivedAt { get; set; }
 
-        public int? StatusId { get; set; }
+        public Boolean? StatusId { get; set; }
 
         public virtual ExaminationRequest Request { get; set; } = null!;
         public virtual Kit Kit { get; set; } = null!;

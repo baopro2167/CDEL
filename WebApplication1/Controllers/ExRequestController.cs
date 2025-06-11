@@ -59,9 +59,17 @@ namespace WebApplication1.Controllers
             return Ok(ExRequestS);
         }
         /// <summary>
-        /// Create ExRequest
+        /// CLấy danh sách ExRequest có phân trang của customer
         /// </summary>
+        [HttpGet("customer")]
+        public async Task<ActionResult<IEnumerable<ExRequestCustomerDTO>>> GetExaminationRequests([FromQuery] int userId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        {
+            // Gọi service để lấy danh sách các yêu cầu kiểm tra của khách hàng
+            var examinationRequests = await _exRequestService.GetExaminationRequests(userId, pageNumber, pageSize);
 
+            // Trả về dữ liệu dưới dạng JSON
+            return Ok(examinationRequests);
+        }
 
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] AddExRequestDTO addExRequestDTO)

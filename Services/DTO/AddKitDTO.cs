@@ -10,7 +10,7 @@ namespace Services.DTO
 {
     public class AddKitDTO
     {
-        public int Id { get; set; }
+      
 
       
         public string Name { get; set; } = null!;
@@ -18,10 +18,10 @@ namespace Services.DTO
         public string? Description { get; set; }
 
         
-        public DateTime CreateAt { get; set; } = DateTime.UtcNow;
+     
 
        
-        public DateTime UpdateAt { get; set; }
+      
 
         
     }

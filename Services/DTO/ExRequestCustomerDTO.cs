@@ -6,12 +6,11 @@ using System.Threading.Tasks;
 
 namespace Services.DTO
 {
-   public class UpdateKitDeliveryDTO
+    public class ExRequestCustomerDTO
     {
-       public DateTime ReceivedAt { get; set; } =DateTime.UtcNow;
-
+        public int RequestId { get; set; }
+        public string ServiceName { get; set; }
         public Boolean StatusId { get; set; }
-
-
+        public DateTime CreatedAt { get; set; }
     }
 }

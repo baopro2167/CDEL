@@ -28,7 +28,7 @@ namespace Model
        public int SampleMethodId { get; set; }
 
         [Required]
-        public int StatusId { get; set; }
+        public Boolean StatusId { get; set; }
 
         
       

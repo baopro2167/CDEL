@@ -15,20 +15,19 @@ using Services.ExRequestSS;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
-var port = Environment.GetEnvironmentVariable("PORT") ?? "8080"; // Cổng mặc định nếu không có PORT
+//var port = Environment.GetEnvironmentVariable("PORT") ?? "8080"; // Cổng mặc định nếu không có PORT
 
-builder.WebHost.ConfigureKestrel(serverOptions =>
-{
-    serverOptions.ListenAnyIP(int.Parse(port));  // Lắng nghe cổng từ Railway
-});
+//builder.WebHost.ConfigureKestrel(serverOptions =>
+//{
+//    serverOptions.ListenAnyIP(int.Parse(port));  // Lắng nghe cổng từ Railway
+//});
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowLocalhost", policy =>
+    options.AddPolicy("AllowAllOrigins", policy =>
     {
-        policy.WithOrigins("http://localhost:5173")
-              .AllowAnyMethod()
-              .AllowAnyHeader()
-              .AllowCredentials();
+        policy.AllowAnyOrigin()  // Cho phép mọi origin
+                 .AllowAnyMethod()  // Cho phép mọi phương thức HTTP (GET, POST, PUT, DELETE, ...)
+                 .AllowAnyHeader(); 
     });
 });
 
@@ -85,7 +84,7 @@ var app = builder.Build();
 
 
 
-app.UseCors("AllowLocalhost");
+app.UseCors("AllowAllOrigins");
 app.UseAuthorization();
 app.UseRouting();
 app.MapControllers();

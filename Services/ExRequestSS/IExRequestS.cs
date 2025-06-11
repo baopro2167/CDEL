@@ -15,6 +15,7 @@ namespace Services.ExRequestSS
         Task<ExaminationRequest?> GetByIdAsync(int id);
         Task<PaginatedList<ExaminationRequest>> GetAll(int pageNumber, int pageSize);
         Task<PaginatedList<ExaminationRequest>> GetByAccountId(int Userid, int pageNumber, int pageSize);
+        Task<IEnumerable<ExRequestCustomerDTO>> GetExaminationRequests(int userId, int pageNumber, int pageSize);
         Task<ExaminationRequest> AddAsync(AddExRequestDTO addExRequestDto);
         Task<ExaminationRequest?> UpdateAsync(int id, UpdateExRequestDTO updateExRequestDto);
         Task DeleteAsync(int id);
