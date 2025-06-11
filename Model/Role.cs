@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace Model
 {
@@ -21,6 +22,7 @@ namespace Model
         [Required]
         public DateTime UpdatedAt { get; set; }
 
+        [JsonIgnore]
         public virtual ICollection<User>? Users{ get; set; }
     }
 }

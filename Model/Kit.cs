@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Model
@@ -27,6 +28,7 @@ namespace Model
         [Required]
         public DateTime UpdateAt { get; set; }
 
+        [JsonIgnore]
         public virtual ICollection<KitDelivery> KitDeliveries { get; set; } = new List<KitDelivery>();
     }
 }

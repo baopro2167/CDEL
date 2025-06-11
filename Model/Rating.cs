@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Model
@@ -33,6 +34,7 @@ namespace Model
 
         // Navigation property
         public virtual User? User { get; set; }
+        [JsonIgnore]
 
         public virtual ExaminationRequest? Request { get; set; } = null!;
     }

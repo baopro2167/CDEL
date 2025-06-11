@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 
 namespace Model
 {
@@ -44,12 +45,15 @@ namespace Model
 
         // Navigation properties
         public virtual User? User { get; set; }
-    
 
-       
+
+        [JsonIgnore]
         public virtual Service Service { get; set; } = null!;
+        [JsonIgnore]
         public virtual SampleMethod SampleMethod { get; set; } = null!;
+        [JsonIgnore]
         public virtual ICollection<ExaminationResult> ExaminationResults { get; set; } = new List<ExaminationResult>();
+        [JsonIgnore]
         public virtual ICollection<KitDelivery> KitDeliveries { get; set; } = new List<KitDelivery>();
     }
 }
