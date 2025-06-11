@@ -16,9 +16,9 @@ namespace Services.DTO
 
         public int KitId { get; set; }
 
-        public DateTime SentAt { get; set; } = DateTime.UtcNow;
+       
 
-        public DateTime ReceivedAt { get; set; }
+     
 
         public Boolean? StatusId { get; set; }
 
