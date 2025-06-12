@@ -34,7 +34,7 @@ namespace Services.KitS
             {
                 Name = createKitDto.Name,
                 Description = createKitDto.Description,
-               
+              // axasx//
             };
             await _kitRepository.AddAsync(kit);
            
@@ -87,8 +87,8 @@ namespace Services.KitS
             kit.Name = updateKitDto.Name;
             kit.Description = updateKitDto.Description; // Nullable field
             kit.UpdateAt = updateKitDto.UpdateAt.Kind == DateTimeKind.Unspecified
-                ? DateTime.SpecifyKind(updateKitDto.UpdateAt, DateTimeKind.Utc)
-                : updateKitDto.UpdateAt.ToUniversalTime();
+                 ? DateTime.SpecifyKind(updateKitDto.UpdateAt, DateTimeKind.Utc)
+                 : updateKitDto.UpdateAt.ToUniversalTime();
 
             await _kitRepository.UpdateAsync(kit);
 
