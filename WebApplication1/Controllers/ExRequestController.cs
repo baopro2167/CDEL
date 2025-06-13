@@ -131,7 +131,7 @@ namespace WebApplication1.Controllers
                 }
 
                 await _exRequestService.DeleteAsync(id);
-                return NoContent(); // 204 No Content indicates successful deletion
+                return Ok("Xóa thành công"); // 204 No Content indicates successful deletion
             }
             catch (KeyNotFoundException ex)
             {

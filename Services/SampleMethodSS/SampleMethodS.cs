@@ -64,7 +64,9 @@ namespace Services.SampleMethodSS
             }
             upmethods.Name = updateSampleMethodDto.Name;
             upmethods.Description = updateSampleMethodDto.Description; // Nullable field
-
+            upmethods.UpdateAt = updateSampleMethodDto.UpdateAt.Kind == DateTimeKind.Unspecified
+              ? DateTime.SpecifyKind(updateSampleMethodDto.UpdateAt, DateTimeKind.Utc)
+              : updateSampleMethodDto.UpdateAt.ToUniversalTime();
             await _sampleMethodRepository.UpdateAsync(upmethods);
             return upmethods;
         }

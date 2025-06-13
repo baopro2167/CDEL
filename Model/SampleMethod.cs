@@ -20,6 +20,11 @@ namespace Model
         public string Name { get; set; } = null!;
 
         public string? Description { get; set; }
+        [Required]
+        public DateTime? CreateAt { get; set; } = DateTime.UtcNow;
+
+        [Required]
+        public DateTime? UpdateAt { get; set; } = DateTime.UtcNow;
 
         [JsonIgnore]
         public ICollection<ServiceSampleMethod> ServiceSampleMethods { get; set; } = new List<ServiceSampleMethod>();
