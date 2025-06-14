@@ -87,7 +87,7 @@ namespace WebApplication1.Controllers
                 return NotFound($"sampleMethod with ID {id} not found.");
             }
 
-            return NoContent(); // 204 No Content, no body
+            return Ok("Update sampleMethod thành công");
 
 
 

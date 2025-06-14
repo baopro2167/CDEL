@@ -85,7 +85,8 @@ namespace WebApplication1.Controllers
                 return NotFound($"ServiceB with ID {id} not found.");
             }
 
-            return NoContent(); // 204 No Content, no body
+            return Ok("Update serviceBB thành công");
+
 
 
 

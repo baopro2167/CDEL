@@ -109,7 +109,7 @@ namespace WebApplication1.Controllers
                 return NotFound($"ExRequest with ID {id} not found.");
             }
 
-            return NoContent(); // 204 No Content, no body
+            return Ok("Update ExRequest thành công"); // 204 No Content, no body
 
 
 

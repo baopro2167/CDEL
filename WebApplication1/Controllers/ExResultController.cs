@@ -92,7 +92,7 @@ namespace WebApplication1.Controllers
                     return NotFound($"exResult with ID {id} not found.");
                 }
 
-                return NoContent(); // 204 No Content, no body
+                return Ok("Update exResult thành công"); // 204 No Content, no body
             }
 
             catch (ArgumentException ex)

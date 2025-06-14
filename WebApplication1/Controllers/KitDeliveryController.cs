@@ -97,7 +97,7 @@ namespace WebApplication1.Controllers
                     return NotFound($"Kitdeliveries with ID {id} not found.");
                 }
 
-                return NoContent(); // 204 No Content, no body
+                return Ok("Update Kitdeliveries thành công");
             }
 
             catch (ArgumentException ex)
