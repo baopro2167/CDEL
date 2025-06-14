@@ -28,7 +28,7 @@ namespace Services.DTO
         public DateTime AppointmentTime { get; set; }
 
 
-        public DateTime UpdateAt { get; set; } = DateTime.UtcNow;
+      
 
 
     }
