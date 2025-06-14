@@ -80,6 +80,7 @@ namespace Services.ExRequestSS
          ? DateTime.SpecifyKind(addExRequestDto.AppointmentTime, DateTimeKind.Utc)
          : addExRequestDto.AppointmentTime.ToUniversalTime(),
             };
+          
             await _exRequestRepository.AddAsync(examinationRequest);
             return examinationRequest;
         }
@@ -99,12 +100,13 @@ namespace Services.ExRequestSS
             examinationRequest.PriorityId = updateExRequestDto.PriorityId;
             examinationRequest.SampleMethodId = updateExRequestDto.SampleMethodId;
             examinationRequest.StatusId = updateExRequestDto.StatusId;
-            examinationRequest.AppointmentTime = updateExRequestDto.AppointmentTime.Kind == DateTimeKind.Unspecified
-         ? DateTime.SpecifyKind(updateExRequestDto.AppointmentTime, DateTimeKind.Utc)
-         : updateExRequestDto.AppointmentTime.ToUniversalTime();
+            examinationRequest.UpdateAt = DateTime.UtcNow;
+            updateExRequestDto.AppointmentTime.ToUniversalTime();
+
 
             await _exRequestRepository.UpdateAsync(examinationRequest);
             return examinationRequest;
+
         }
         public async Task DeleteAsync(int id)
         {
