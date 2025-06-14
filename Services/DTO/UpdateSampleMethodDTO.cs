@@ -13,6 +13,6 @@ namespace Services.DTO
 
         public string Description { get; set; }
 
-        public DateTime UpdateAt { get; set; } = DateTime.UtcNow;
+       
     }
 }
