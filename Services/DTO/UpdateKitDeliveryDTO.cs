@@ -8,7 +8,7 @@ namespace Services.DTO
 {
    public class UpdateKitDeliveryDTO
     {
-       public DateTime ReceivedAt { get; set; } =DateTime.UtcNow;
+     
 
         public Boolean StatusId { get; set; }
 

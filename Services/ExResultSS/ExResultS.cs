@@ -49,11 +49,10 @@ namespace Services.ExResultSS
                 RequestId = addExResultDto.RequestId,
                 FileUrl = addExResultDto.FileUrl,
                 ResultDate = addExResultDto.ResultDate,
-                CreateAt = addExResultDto.CreateAt.Kind == DateTimeKind.Unspecified
-         ? DateTime.SpecifyKind(addExResultDto.CreateAt, DateTimeKind.Utc)
-         : addExResultDto.CreateAt.ToUniversalTime(),
+                
                
             };
+
             await _exResultRepository.AddAsync(newExaminationResult);
             return newExaminationResult;
         }
@@ -70,12 +69,11 @@ namespace Services.ExResultSS
             if (UExResul == null)
             {
                 throw new KeyNotFoundException($"ExResult with ID {id} not found.");
+                UExResul.UpdateAt = DateTime.UtcNow;
+                UExResul.FileUrl = updateExResultDto.FileUrl;
+                UExResul.ResultDate = updateExResultDto.ResultDate;
             }
-            UExResul.UpdateAt = updateExResultDto.UpdateAt.Kind == DateTimeKind.Unspecified
-                ? DateTime.SpecifyKind(updateExResultDto.UpdateAt, DateTimeKind.Utc)
-                : updateExResultDto.UpdateAt.ToUniversalTime();
-            UExResul.FileUrl = updateExResultDto.FileUrl;
-            UExResul.ResultDate = updateExResultDto.ResultDate;
+            UExResul.UpdateAt = DateTime.UtcNow;
 
             await _exResultRepository.UpdateAsync(UExResul);
             return UExResul;

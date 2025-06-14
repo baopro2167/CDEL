@@ -61,6 +61,7 @@ namespace Services.ServiceSS
             service.Name = updateServiceBDto.Name;
             service.Description = updateServiceBDto.Description;
             service.Price = updateServiceBDto.Price;
+            service.UpdateAt = DateTime.Now;
             return await _serviceRepository.UpdateAsync(service);
         }
         public async Task DeleteAsync(int id)

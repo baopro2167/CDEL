@@ -11,6 +11,6 @@ namespace Services.DTO
         public int RequestId { get; set; }
         public string? ServiceName { get; set; }
         public Boolean StatusId { get; set; }
-        public DateTime CreatedAt { get; set; }
+       
     }
 }

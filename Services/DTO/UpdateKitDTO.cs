@@ -18,6 +18,6 @@ namespace Services.DTO
 
         
 
-        public DateTime UpdateAt { get; set; } = DateTime.UtcNow;
+       
     }
 }

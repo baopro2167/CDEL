@@ -16,8 +16,6 @@ namespace Services.DTO
         public DateTime? ResultDate { get; set; }
 
 
-        public DateTime CreateAt { get; set; } = DateTime.UtcNow;
-
 
         
 

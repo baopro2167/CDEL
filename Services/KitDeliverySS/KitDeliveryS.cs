@@ -34,6 +34,7 @@ namespace Services.KitDeliverySS
               
                 StatusId = addKitDeliveryDto.StatusId
             };
+         
 
             await _kitDeliveryRepository.AddAsync(delivery);
          
@@ -83,6 +84,7 @@ namespace Services.KitDeliverySS
             }
           
             kitDeliveries.StatusId = updateKitDeliveryDto.StatusId;
+            kitDeliveries.ReceivedAt = DateTime.UtcNow;
 
             await _kitDeliveryRepository.UpdateAsync(kitDeliveries);
 
