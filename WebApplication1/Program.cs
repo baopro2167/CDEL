@@ -19,6 +19,7 @@ using Services.AccountS;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 //var port = Environment.GetEnvironmentVariable("PORT") ?? "8080"; // Cổng mặc định nếu không có PORT
@@ -82,6 +83,35 @@ builder.Services
             IssuerSigningKey = new SymmetricSecurityKey(
                                           Encoding.UTF8.GetBytes(
                                             builder.Configuration["AppSettings:Token"]!))
+        };
+        options.Events = new JwtBearerEvents
+        {
+            // Khi client không đưa token hoặc token invalid → OnChallenge
+            OnChallenge = async context =>
+            {
+                // Chặn response mặc định
+                context.HandleResponse();
+
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                context.Response.ContentType = "application/json; charset=utf-8";
+
+                var payload = new { message = "Bạn cần đăng nhập để truy cập." };
+                await context.Response.WriteAsync(
+                    JsonSerializer.Serialize(payload)
+                );
+            },
+
+            // Khi token hợp lệ nhưng không đủ quyền → OnForbidden
+            OnForbidden = async context =>
+            {
+                context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                context.Response.ContentType = "application/json; charset=utf-8";
+
+                var payload = new { message = "Bạn không có quyền hạn." };
+                await context.Response.WriteAsync(
+                    JsonSerializer.Serialize(payload)
+                );
+            }
         };
     });
 builder.Services.AddAuthorization();

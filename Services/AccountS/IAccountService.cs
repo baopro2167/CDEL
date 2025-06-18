@@ -1,4 +1,5 @@
 ﻿using Model;
+using Repositories.Pagging;
 using Services.DTO;
 using System;
 using System.Collections.Generic;
@@ -11,9 +12,10 @@ namespace Services.AccountS
     public interface IAccountService
     {
         Task<User> Register(RegisterUserDto registerUserDto);
-
+        Task<User> RegisterForAdmin(RegisterAdminDTO registerAdmin);
         Task<TokenResponseDTO?> LoginAsync(LoginUserDto loginUserDto);
 
         Task<TokenResponseDTO?> RefreshTokenAsync(RefreshTokenRequestDTO refreshToken);
+        Task<PaginatedList<User>> GetByAccountRole(int roleid, int pageNumber, int pageSize);
     }
 }

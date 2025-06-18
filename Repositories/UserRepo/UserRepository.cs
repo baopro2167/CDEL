@@ -37,5 +37,16 @@ namespace Repositories.UserRepo
         {
             return await _context.Users.FindAsync(id);
         }
+        public IQueryable<User> GetAll()
+        {
+            return _context.Users.AsQueryable();
+        }
+       
+
+        public IQueryable<User> GetUsersByRoleId(int roleId)
+        {
+            return _context.Users.Where(u => u.RoleId == roleId).AsNoTracking();
+        }
     }
-}
+    }
+

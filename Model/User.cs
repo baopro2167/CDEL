@@ -28,13 +28,13 @@ namespace Model
         [StringLength(200)]
         public string Password { get; set; } = string.Empty;
 
-        [Required]
+       
         [StringLength(10)]
-        public string Phone { get; set; } = null!;
+        public string? Phone { get; set; } 
 
-        [Required]
+       
         [StringLength(20)]
-        public string Address { get; set; } = null!;
+        public string? Address { get; set; } 
 
         [Required]
         public int RoleId { get; set; }

@@ -14,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
 using Azure.Core;
+using Repositories.Pagging;
 namespace Services.AccountS
 {
     public class AccountService : IAccountService
@@ -47,11 +48,13 @@ namespace Services.AccountS
         }
         public async Task<User> Register(RegisterUserDto registerUserDto)
         {
+         
             var existingUser = await _userRepository.GetByEmailAsync(registerUserDto.Email);
             if (existingUser != null)
             {
                 throw new Exception("User with this email already exists.");
             }
+
             var user = new User
             {
                 Name = registerUserDto.Name,
@@ -59,7 +62,7 @@ namespace Services.AccountS
 
                 Phone = registerUserDto.Phone,
                 Address = registerUserDto.Address,
-                RoleId = registerUserDto.RoleId
+                RoleId = 2
             };
             user.Password = _hasher.HashPassword(user, registerUserDto.Password);
             await _userRepository.Register(user);
@@ -158,6 +161,33 @@ namespace Services.AccountS
 
             return user;
         }
+        public async Task<User> RegisterForAdmin(RegisterAdminDTO registerAdmin)
+        {
+            if (registerAdmin.RoleId == 1)
+                throw new ApplicationException("Không được phép tạo user với roleId = 1.");
+            var existingUser = await _userRepository.GetByEmailAsync(registerAdmin.Email);
+            if (existingUser != null)
+            {
+                throw new Exception("User with this email already exists.");
+            }
+            var user = new User
+            {
+               
+                Email = registerAdmin.Email,
 
+               
+                RoleId = registerAdmin.RoleId,
+            };
+            user.Password = _hasher.HashPassword(user, registerAdmin.Password);
+            await _userRepository.Register(user);
+
+            return user;
+        }
+
+        public async Task<PaginatedList<User>> GetByAccountRole(int roleid, int pageNumber, int pageSize)
+        {
+            IQueryable<User> requests = _userRepository.GetUsersByRoleId(roleid).AsQueryable();
+            return await PaginatedList<User>.CreateAsync(requests, pageNumber, pageSize);
+        }
     }
 }

@@ -50,7 +50,15 @@ namespace Model
             Name = "User",
             CreatedAt = new DateTime(2023, 1, 1),
             UpdatedAt = new DateTime(2023, 1, 1)
-        }
+        },
+         new Role
+         {
+             Id = 3,
+             Name = "Staff",
+             CreatedAt = new DateTime(2023, 1, 1),
+             UpdatedAt = new DateTime(2023, 1, 1)
+         }
+
     );
 
             modelBuilder.Entity<User>().HasData(
@@ -59,7 +67,7 @@ namespace Model
         Id = 1,
         Name = "System Admin",
         Email = "admin@bloodline.com",
-        Password = "Admin@123", // INSECURE - PLAIN TEXT FOR TESTING ONLY
+        Password = "AQAAAAIAAYagAAAAEMNhg1Bx5QAKCmZZy+N6T/C05Tc6+0vwWQ17vibbv68jKjtuzfp+bMA2z15j1ySUfw==", // INSECURE - PLAIN TEXT FOR TESTING ONLY
         Phone = "1234567890",
         Address = "123 Admin Street",
         RoleId = 1, // Admin role ID
@@ -71,7 +79,7 @@ namespace Model
         Id = 2,
         Name = "John Doe",
         Email = "john.doe@example.com",
-        Password = "User@456", // INSECURE - PLAIN TEXT FOR TESTING ONLY
+        Password = "AQAAAAIAAYagAAAAEGdT4Bxik+YTE6kNF/L7RQcysjRUIwSdcojiAWNvJtK7iBKIVUCYuxvXhNUqCNvGiQ==", // INSECURE - PLAIN TEXT FOR TESTING ONLY
         Phone = "1987654321",
         Address = "456 User Avenue",
         RoleId = 2, // User role ID

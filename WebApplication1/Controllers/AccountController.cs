@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Model;
 using Services.AccountS;
 using Services.DTO;
 
@@ -15,6 +16,28 @@ namespace WebApplication1.Controllers
         {
             _accountService = accountService;
         }
+
+        /// <summary>
+        /// lấy danh sách account theo roleid
+        /// </summary>
+        /// <param name="roleid">roleid</param>
+        /// <param name="pageNumber">Số Trang</param>
+        /// <param name="pageSize">Số Đơn hàng trong 1 trang</param>
+        /// <returns></returns>
+        [HttpGet("account/{roleid}")]
+        public async Task<ActionResult<IEnumerable<User>>> GetActionResultAsync(int roleid, int pageNumber = 1, int pageSize = 10)
+        {
+            var AExRequest = await _accountService.GetByAccountRole(roleid, pageNumber, pageSize);
+            return Ok(AExRequest);
+        }
+
+
+
+
+
+
+
+
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterUserDto registerUserDto)
         {
@@ -33,6 +56,25 @@ namespace WebApplication1.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [Authorize(Roles = "1")]
+        [HttpPost("register-admin")]
+        public async Task<IActionResult> RegisterAdmin([FromBody] RegisterAdminDTO registerAdmin)
+        {
+            if (registerAdmin == null)
+            {
+                return BadRequest("Invalid create user data.");
+            }
+            try
+            {
+                var user = await _accountService.RegisterForAdmin(registerAdmin);
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }   
+
 
         [HttpPost("login")]
         public async Task<ActionResult<TokenResponseDTO>> Login([FromBody] LoginUserDto dto)

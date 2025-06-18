@@ -12,15 +12,15 @@ using Model;
 namespace Model.Migrations
 {
     [DbContext(typeof(BloodlineDbContext))]
-    [Migration("20250613082505_kkk")]
-    partial class kkk
+    [Migration("20250618091119_sss")]
+    partial class sss
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.5")
+                .HasAnnotation("ProductVersion", "9.0.6")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -260,6 +260,13 @@ namespace Model.Migrations
                             CreatedAt = new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "User",
                             UpdatedAt = new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CreatedAt = new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Name = "Staff",
+                            UpdatedAt = new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         });
                 });
 
@@ -357,7 +364,6 @@ namespace Model.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Address")
-                        .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
@@ -376,13 +382,18 @@ namespace Model.Migrations
 
                     b.Property<string>("Password")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("Phone")
-                        .IsRequired()
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("RefreshToken")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("RefreshTokenExpiryTime")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("RoleId")
                         .HasColumnType("int");
@@ -404,7 +415,7 @@ namespace Model.Migrations
                             CreatedAt = new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "admin@bloodline.com",
                             Name = "System Admin",
-                            Password = "Admin@123",
+                            Password = "AQAAAAIAAYagAAAAEMNhg1Bx5QAKCmZZy+N6T/C05Tc6+0vwWQ17vibbv68jKjtuzfp+bMA2z15j1ySUfw==",
                             Phone = "1234567890",
                             RoleId = 1,
                             UpdatedAt = new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
@@ -416,7 +427,7 @@ namespace Model.Migrations
                             CreatedAt = new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "john.doe@example.com",
                             Name = "John Doe",
-                            Password = "User@456",
+                            Password = "AQAAAAIAAYagAAAAEGdT4Bxik+YTE6kNF/L7RQcysjRUIwSdcojiAWNvJtK7iBKIVUCYuxvXhNUqCNvGiQ==",
                             Phone = "1987654321",
                             RoleId = 2,
                             UpdatedAt = new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)

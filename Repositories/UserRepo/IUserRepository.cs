@@ -15,5 +15,8 @@ namespace Repositories.UserRepo
         Task UpdateAsync(User user);
 
         Task<User?> GetByIdAsync(int id);
+
+        IQueryable<User> GetAll();
+        IQueryable<User> GetUsersByRoleId(int roleId);
     }
 }
