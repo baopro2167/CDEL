@@ -43,7 +43,8 @@ namespace Services.AccountS
             return new TokenResponseDTO
             {
                 AccessToken = accessToken,
-                RefreshToken = refreshToken
+                RefreshToken = refreshToken,
+                RoleId = user.RoleId
             };
         }
         public async Task<User> Register(RegisterUserDto registerUserDto)
