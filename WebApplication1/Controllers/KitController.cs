@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Model;
 using Services;
@@ -21,6 +22,7 @@ namespace WebApplication1.Controllers
         /// <summary>
         /// Lấy danh sách Kit theo id
         /// </summary>
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<ActionResult<Kit>> GetById(int id)
         {

@@ -13,6 +13,12 @@ using Repositories.ServiceRepo;
 using Repositories.ExRequestRepo;
 using Services.ExRequestSS;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Identity;
+using Repositories.UserRepo;
+using Services.AccountS;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 //var port = Environment.GetEnvironmentVariable("PORT") ?? "8080"; // Cổng mặc định nếu không có PORT
@@ -50,6 +56,36 @@ builder.Services.AddScoped<IServiceBB, ServiceBB>();
 builder.Services.AddScoped<IExRequestRepository, ExRequestRepository>();
 builder.Services.AddScoped<IExRequestS, ExRequestS>();
 
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            // 1. Xác thực issuer
+            ValidateIssuer = true,
+            ValidIssuer = builder.Configuration["AppSettings:Issuer"],
+
+            // 2. Xác thực audience
+            ValidateAudience = true,
+            ValidAudience = builder.Configuration["AppSettings:Audience"],
+
+            // 3. Xác thực thời gian sống của token
+            ValidateLifetime = true,
+
+            // 4. Khóa ký token
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(
+                                          Encoding.UTF8.GetBytes(
+                                            builder.Configuration["AppSettings:Token"]!))
+        };
+    });
+builder.Services.AddAuthorization();
+
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -62,8 +98,34 @@ builder.Services.AddSwaggerGen(options =>
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     options.IncludeXmlComments(xmlPath);
 });
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
 
+    // 1) Khai báo scheme Bearer (HTTP)
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "Nhập JWT token theo định dạng: Bearer {token}",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT"
+    });
 
+    // 2) Bắt buộc mọi operation (hoặc những operation có [Authorize]) dùng scheme trên
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement {
+        {
+            new OpenApiSecurityScheme {
+                Reference = new OpenApiReference {
+                    Type = ReferenceType.SecurityScheme,
+                    Id   = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
 
 
 
@@ -83,10 +145,11 @@ var app = builder.Build();
     app.UseHttpsRedirection();  // Chuyển hướng tất cả HTTP yêu cầu thành HTTPS
 
 
-
-app.UseCors("AllowAllOrigins");
-app.UseAuthorization();
 app.UseRouting();
+app.UseCors("AllowAllOrigins");
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.MapControllers();
 
 app.Run();
