@@ -27,10 +27,12 @@ namespace Model
         public DbSet<Rating> Ratings { get; set; }
         public DbSet<KitDelivery> KitDeliverys { get; set; }
         public DbSet<ExaminationResult> ExaminationResults { get; set; }
-        public DbSet<ServiceSampleMethod> ServiceSampleMethods { get; set; }
+        
         public DbSet<Service> ServiceBs { get; set; }
 
         public DbSet<SampleMethod> SampleMethods { get; set; }
+        public DbSet<ServiceSampleMethod> ServiceSampleMethods { get; set; }
+        public DbSet<Staff> Staffs { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -143,6 +145,9 @@ namespace Model
                 .WithMany(u => u.Ratings)
                 .HasForeignKey(r => r.UserId)
                 .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<ServiceSampleMethod>()
+                .HasKey(ssm => new { ssm.ServiceId, ssm.SampleMethodId });
 
             modelBuilder.Entity<ServiceSampleMethod>()
                 .HasOne(ssm => ssm.Service)

@@ -17,5 +17,6 @@ namespace Services.AccountS
 
         Task<TokenResponseDTO?> RefreshTokenAsync(RefreshTokenRequestDTO refreshToken);
         Task<PaginatedList<User>> GetByAccountRole(int roleid, int pageNumber, int pageSize);
+        Task<IEnumerable<GetAllUserResponseDto>> GetAllAsync();
     }
 }

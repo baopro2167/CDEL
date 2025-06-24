@@ -11,6 +11,7 @@ namespace Repositories.SampleMethodRepo
     {
         Task<IEnumerable<SampleMethod>> GetAsync();
         Task<SampleMethod> GetByIdAsync(int id);
+        Task<IEnumerable<SampleMethod>> GetByServiceIdAsync(int serviceId);
         Task<SampleMethod> AddAsync(SampleMethod method);
         Task<SampleMethod> UpdateAsync(SampleMethod method);
         Task DeleteAsync(int id);

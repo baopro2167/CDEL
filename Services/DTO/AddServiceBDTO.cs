@@ -19,10 +19,10 @@ namespace Services.DTO
        
         public decimal Price { get; set; }
 
-      
-       
 
-       
+        public List<int> SampleMethodIds { get; set; }
+
+
 
     }
 }

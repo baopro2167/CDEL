@@ -12,8 +12,8 @@ using Model;
 namespace Model.Migrations
 {
     [DbContext(typeof(BloodlineDbContext))]
-    [Migration("20250618091119_sss")]
-    partial class sss
+    [Migration("20250623145215_vcl")]
+    partial class vcl
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -66,11 +66,23 @@ namespace Model.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("AdressRequest")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("AppointmentTime")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("CreateAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("PriorityId")
                         .HasColumnType("int");
@@ -79,6 +91,9 @@ namespace Model.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("ServiceId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StaffId")
                         .HasColumnType("int");
 
                     b.Property<bool>("StatusId")
@@ -320,6 +335,9 @@ namespace Model.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<string>("Requirements")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Type")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -334,25 +352,41 @@ namespace Model.Migrations
 
             modelBuilder.Entity("Model.ServiceSampleMethod", b =>
                 {
+                    b.Property<int>("ServiceId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SampleMethodId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ServiceId", "SampleMethodId");
+
+                    b.HasIndex("SampleMethodId");
+
+                    b.ToTable("ServiceSampleMethods");
+                });
+
+            modelBuilder.Entity("Model.Staff", b =>
+                {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("SampleMethodId")
-                        .HasColumnType("int");
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("ServiceId")
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SampleMethodId");
-
-                    b.HasIndex("ServiceId");
-
-                    b.ToTable("ServiceSampleMethod");
+                    b.ToTable("Staffs");
                 });
 
             modelBuilder.Entity("Model.User", b =>
@@ -398,12 +432,20 @@ namespace Model.Migrations
                     b.Property<int>("RoleId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("StaffId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Status")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
                     b.HasIndex("RoleId");
+
+                    b.HasIndex("StaffId");
 
                     b.ToTable("User");
 
@@ -418,6 +460,7 @@ namespace Model.Migrations
                             Password = "AQAAAAIAAYagAAAAEMNhg1Bx5QAKCmZZy+N6T/C05Tc6+0vwWQ17vibbv68jKjtuzfp+bMA2z15j1ySUfw==",
                             Phone = "1234567890",
                             RoleId = 1,
+                            Status = false,
                             UpdatedAt = new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
@@ -430,6 +473,7 @@ namespace Model.Migrations
                             Password = "AQAAAAIAAYagAAAAEGdT4Bxik+YTE6kNF/L7RQcysjRUIwSdcojiAWNvJtK7iBKIVUCYuxvXhNUqCNvGiQ==",
                             Phone = "1987654321",
                             RoleId = 2,
+                            Status = false,
                             UpdatedAt = new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         });
                 });
@@ -548,6 +592,10 @@ namespace Model.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Model.Staff", null)
+                        .WithMany("Users")
+                        .HasForeignKey("StaffId");
+
                     b.Navigation("Role");
                 });
 
@@ -576,6 +624,11 @@ namespace Model.Migrations
             modelBuilder.Entity("Model.Service", b =>
                 {
                     b.Navigation("ServiceSampleMethods");
+                });
+
+            modelBuilder.Entity("Model.Staff", b =>
+                {
+                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("Model.User", b =>

@@ -5,57 +5,49 @@
 namespace Model.Migrations
 {
     /// <inheritdoc />
-    public partial class sss : Migration
+    public partial class kkkk : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterColumn<string>(
-                name: "Phone",
-                table: "User",
-                type: "nvarchar(10)",
-                maxLength: 10,
+                name: "Summary",
+                table: "BlogPost",
+                type: "nvarchar(max)",
                 nullable: true,
                 oldClrType: typeof(string),
-                oldType: "nvarchar(10)",
-                oldMaxLength: 10);
+                oldType: "nvarchar(max)");
 
             migrationBuilder.AlterColumn<string>(
-                name: "Address",
-                table: "User",
-                type: "nvarchar(20)",
-                maxLength: 20,
+                name: "Author",
+                table: "BlogPost",
+                type: "nvarchar(max)",
                 nullable: true,
                 oldClrType: typeof(string),
-                oldType: "nvarchar(20)",
-                oldMaxLength: 20);
+                oldType: "nvarchar(max)");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterColumn<string>(
-                name: "Phone",
-                table: "User",
-                type: "nvarchar(10)",
-                maxLength: 10,
+                name: "Summary",
+                table: "BlogPost",
+                type: "nvarchar(max)",
                 nullable: false,
                 defaultValue: "",
                 oldClrType: typeof(string),
-                oldType: "nvarchar(10)",
-                oldMaxLength: 10,
+                oldType: "nvarchar(max)",
                 oldNullable: true);
 
             migrationBuilder.AlterColumn<string>(
-                name: "Address",
-                table: "User",
-                type: "nvarchar(20)",
-                maxLength: 20,
+                name: "Author",
+                table: "BlogPost",
+                type: "nvarchar(max)",
                 nullable: false,
                 defaultValue: "",
                 oldClrType: typeof(string),
-                oldType: "nvarchar(20)",
-                oldMaxLength: 20,
+                oldType: "nvarchar(max)",
                 oldNullable: true);
         }
     }

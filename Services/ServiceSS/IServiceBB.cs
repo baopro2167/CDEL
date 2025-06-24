@@ -10,13 +10,13 @@ namespace Services.ServiceSS
 {
     public interface IServiceBB
     {
-        Task<Service?> GetByIdAsync(int id);
+        Task<ServiceGetDTO?> GetByIdAsync(int id);
 
         Task<IEnumerable<Service>> GetAllAsync();
-
+        Task<IEnumerable<ServiceGetPriceDTO>> GetPricingAsync();
         Task<PaginatedList<Service>> GetAll(int pageNumber, int pageSize);
-        Task<Service> AddAsync(AddServiceBDTO addServiceBDto);
-        Task<Service?> UpdateAsync(int id, UpdateServiceBDTO updateServiceBDto);
+        Task<ServiceGetNameDTO> AddAsync(AddServiceBDTO addServiceBDto);
+        Task<ServiceGetNameDTO?> UpdateAsync(int id, UpdateServiceBDTO updateServiceBDto);
         Task DeleteAsync(int id);
 
     }

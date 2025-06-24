@@ -5,18 +5,32 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Model;
+using Repositories.ServiceSMRepo;
 namespace Repositories.ServiceRepo
 {
     public class ServiceRepository : IServiceRepository
     {
         private readonly BloodlineDbContext _context;
-        public ServiceRepository(BloodlineDbContext context)
+        private readonly IServiceSMRepository _serviceSampleMethodRepository;
+        public ServiceRepository(BloodlineDbContext context,IServiceSMRepository serviceSM)
         {
             _context = context;
+            _serviceSampleMethodRepository = serviceSM;
         }
         public IQueryable<Service> GetAll()
         {
             return _context.ServiceBs.AsQueryable();
+        }
+        public async Task<IEnumerable<Service>> GetPricingAsync()
+        {
+            return await _context.ServiceBs
+                                 .Select(s => new Service
+                                 {
+                                     Id = s.Id,
+                                     Name = s.Name,
+                                     Price = s.Price
+                                 })
+                                 .ToListAsync();
         }
         public async Task<IEnumerable<Service>> GetAllAsync()
         {
@@ -30,7 +44,9 @@ namespace Repositories.ServiceRepo
         {
             _context.Set<Service>().Add(service);
             await _context.SaveChangesAsync();
-            return service;
+           
+
+            return service;  // Trả về Service đã thêm
         }
         public async Task<Service> UpdateAsync(Service service)
         {

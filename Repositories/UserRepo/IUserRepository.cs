@@ -18,5 +18,7 @@ namespace Repositories.UserRepo
 
         IQueryable<User> GetAll();
         IQueryable<User> GetUsersByRoleId(int roleId);
+
+        Task<IEnumerable<User>> GetAsync();
     }
 }

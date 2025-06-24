@@ -18,6 +18,19 @@ namespace WebApplication1.Controllers
         }
 
         /// <summary>
+        /// Lấy toàn bộ accountall
+        /// </summary>
+        [HttpGet("accountall")]
+        public async Task<ActionResult<IEnumerable<User>>> GetAll()
+        {
+            var guser = await _accountService.GetAllAsync();
+            return Ok(guser);
+        }
+
+
+
+
+        /// <summary>
         /// lấy danh sách account theo roleid
         /// </summary>
         /// <param name="roleid">roleid</param>

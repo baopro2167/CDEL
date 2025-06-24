@@ -39,6 +39,8 @@ namespace Model
         [Required]
         public int RoleId { get; set; }
 
+        public bool Status { get; set; }
+
         [Required]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         [Required]

@@ -47,6 +47,12 @@ namespace Repositories.UserRepo
         {
             return _context.Users.Where(u => u.RoleId == roleId).AsNoTracking();
         }
+
+        public async Task<IEnumerable<User>> GetAsync()
+        {
+            return await _context.Set<User>().ToListAsync();
+        }
+        
     }
-    }
+}
 

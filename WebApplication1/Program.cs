@@ -10,6 +10,7 @@ using Repositories.SampleMethodRepo;
 using Services.SampleMethodSS;
 using Services.ServiceSS;
 using Repositories.ServiceRepo;
+using Repositories.ServiceSMRepo;
 using Repositories.ExRequestRepo;
 using Services.ExRequestSS;
 using Microsoft.OpenApi.Models;
@@ -20,6 +21,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Text.Json;
+using Services.EmailS;
+using Services.BlogPostSS;
+using Repositories.BlogPostRepo;
 
 var builder = WebApplication.CreateBuilder(args);
 //var port = Environment.GetEnvironmentVariable("PORT") ?? "8080"; // Cổng mặc định nếu không có PORT
@@ -51,6 +55,8 @@ builder.Services.AddScoped<IExResultRepository, ExResultRepository>();
 builder.Services.AddScoped<ISampleMethodRepository, SampleMethodRepository>();
 builder.Services.AddScoped<ISampleMethodS, SampleMethodS>();
 
+builder.Services.AddScoped<IServiceSMRepository, ServiceSMRepository>();
+
 builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
 builder.Services.AddScoped<IServiceBB, ServiceBB>();
 
@@ -60,6 +66,11 @@ builder.Services.AddScoped<IExRequestS, ExRequestS>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+
+builder.Services.AddScoped<IEmailService, EmailService>();
+
+builder.Services.AddScoped<IBlogPostServices, BlogPostServices>();
+builder.Services.AddScoped<IBlogPostRepository, BlogPostRepository>();
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

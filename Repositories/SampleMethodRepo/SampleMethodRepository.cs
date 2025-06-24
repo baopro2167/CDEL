@@ -26,6 +26,12 @@ namespace Repositories.SampleMethodRepo
         {
             return await _context.Set<SampleMethod>().FindAsync(id);
         }
+        public async Task<IEnumerable<SampleMethod>> GetByServiceIdAsync(int serviceId)
+        {
+            return await _context.SampleMethods
+                                 .Where(sm => sm.Id == serviceId)
+                                 .ToListAsync();
+        }
 
         public async Task<IEnumerable<SampleMethod>> GetAsync()
         {

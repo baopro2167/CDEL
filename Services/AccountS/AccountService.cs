@@ -49,7 +49,7 @@ namespace Services.AccountS
         }
         public async Task<User> Register(RegisterUserDto registerUserDto)
         {
-         
+
             var existingUser = await _userRepository.GetByEmailAsync(registerUserDto.Email);
             if (existingUser != null)
             {
@@ -63,7 +63,8 @@ namespace Services.AccountS
 
                 Phone = registerUserDto.Phone,
                 Address = registerUserDto.Address,
-                RoleId = 2
+                RoleId = 2,
+                Status = true,
             };
             user.Password = _hasher.HashPassword(user, registerUserDto.Password);
             await _userRepository.Register(user);
@@ -81,7 +82,7 @@ namespace Services.AccountS
             var result = _hasher.VerifyHashedPassword(user, user.Password, loginUserDto.Password);
             if (result == PasswordVerificationResult.Failed)
                 throw new ApplicationException("Sai mật khẩu.");
-           
+
             return await CreateTokenResponse(user);
         }
         public string CreateToken(User user)
@@ -173,10 +174,10 @@ namespace Services.AccountS
             }
             var user = new User
             {
-               
+
                 Email = registerAdmin.Email,
 
-               
+
                 RoleId = registerAdmin.RoleId,
             };
             user.Password = _hasher.HashPassword(user, registerAdmin.Password);
@@ -190,5 +191,29 @@ namespace Services.AccountS
             IQueryable<User> requests = _userRepository.GetUsersByRoleId(roleid).AsQueryable();
             return await PaginatedList<User>.CreateAsync(requests, pageNumber, pageSize);
         }
+
+        public async Task<IEnumerable<GetAllUserResponseDto>> GetAllAsync()
+        {
+            var users = await _userRepository.GetAsync();
+            var nowUtc = DateTime.UtcNow;
+
+            // Chuyển từ User entity sang UserResponseDto
+            var dtos = users.Select(u => new GetAllUserResponseDto
+            {
+                UserId = u.Id,
+                Email = u.Email,
+                Role = u.RoleId switch
+                {
+                    1 => "System Admin",
+                    2 => "User",
+                    3 => "Staff",
+                    _ => "Unknown"
+                },
+                Status = u.Status
+            });
+
+            return dtos;
+        }
     }
-}
+    }
+

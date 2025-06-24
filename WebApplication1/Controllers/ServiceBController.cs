@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Model;
 using Services.DTO;
@@ -14,6 +15,17 @@ namespace WebApplication1.Controllers
         {
             _serviceBB = serviceBB;
         }
+        /// <summary>
+        /// Lấy  serviceBB theo price
+        /// </summary>
+        [HttpGet("Price")]
+        public async Task<IActionResult> GetPricing()
+        {
+            var pricing = await _serviceBB.GetPricingAsync();
+            return Ok(pricing); // Trả về danh sách dịch vụ với thông tin bảng giá
+        }
+
+
         /// <summary>
         /// Lấy  serviceBB theo id
         /// </summary>
@@ -44,10 +56,10 @@ namespace WebApplication1.Controllers
             return Ok(sservice);
         }
         /// <summary>
-        /// Create serviceBB
+        /// Create serviceBB for admin , manager
         /// </summary>
 
-
+        [Authorize(Roles = "1,4")]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] AddServiceBDTO addServiceBDTO)
         {
@@ -58,13 +70,14 @@ namespace WebApplication1.Controllers
 
             try
             {
-                var addsserviceB = await _serviceBB.AddAsync(addServiceBDTO);
-                return CreatedAtAction(nameof(GetById), new { id = addsserviceB.Id }, addsserviceB);
-            }
+                // Truyền cả Service và SampleMethodIds vào phương thức AddAsync
+                var addsserviceB = await _serviceBB.AddAsync(addServiceBDTO );
 
+                return CreatedAtAction(nameof(GetById), new { id = addsserviceB.ServiceId }, addsserviceB);
+            }
             catch (ArgumentException ex)
             {
-                return BadRequest(ex.Message); // For validation errors
+                return BadRequest(ex.Message); // Xử lý lỗi kiểm tra dữ liệu
             }
         }
         /// <summary>

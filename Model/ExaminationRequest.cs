@@ -43,7 +43,15 @@ namespace Model
         [Required]
         public DateTime UpdateAt { get; set; }
 
-        // Navigation properties
+        public int StaffId { get; set; } = 0;
+
+        public String FullName { get; set; } 
+
+        public string PhoneNumber { get; set; }
+
+        public string AdressRequest { get; set; }
+        
+        // Navigation propertiess
         public virtual User? User { get; set; }
 
 

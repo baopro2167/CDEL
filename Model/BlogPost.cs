@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 
 namespace Model
 {
@@ -25,13 +26,16 @@ namespace Model
         [Required]
         public string Content { get; set; } = string.Empty;
 
+        public string? Summary { get; set; }
+        public string? Author { get; set; }
+        
         [Required]
         public DateTime CreateAt { get; set; } = DateTime.UtcNow;
 
         [Required]
-        public DateTime UpdateAt { get; set; } 
+        public DateTime UpdateAt { get; set; }
 
-        // Navigation property
+        [JsonIgnore]
         public virtual User? User { get; set; }
 
        // public virtual ICollection<KitDelivery> KitDeliveries { get; set; } = null!;
