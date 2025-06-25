@@ -61,11 +61,11 @@ namespace Services.BlogPostSS
                 Content = blogPostCreateDTO.Content,
                 UserId = userId,
                 CreateAt = DateTime.UtcNow,
-                UpdateAt = DateTime.UtcNow
+                UpdateAt = DateTime.UtcNow,
+                Author = blogPostCreateDTO.Author,
                 
             };
-            blogPost.Author = null;
-            blogPost.Summary = null;
+           
             // Lưu bài viết vào cơ sở dữ liệu
             await _blogPostRepository.AddAsync(blogPost);
 
@@ -73,7 +73,8 @@ namespace Services.BlogPostSS
             return new BlogPostResponseDTO
             {
                 BlogId = blogPost.Id,
-                Title = blogPost.Title
+                Title = blogPost.Title,
+                Author = blogPost.Author,
             };
         }
         
@@ -121,7 +122,7 @@ namespace Services.BlogPostSS
                                                      {
                                                          Id = blog.Id,
                                                          Title = blog.Title,
-                                                         Summary = blog.Summary,
+                                                        
                                                          Author = blog.Author,
                                                          CreateAt = blog.CreateAt
                                                      })

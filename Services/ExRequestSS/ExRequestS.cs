@@ -54,7 +54,8 @@ namespace Services.ExRequestSS
             {
                 RequestId = request.Id,
                 ServiceName = _serviceRepository.GetByIdAsync(request.ServiceId).Result.Name,  // Lấy tên dịch vụ từ Service repository
-                StatusId = request.StatusId,  // Trả về StatusId kiểu Boolean
+                StatusId = request.StatusId,  
+                // Trả về StatusId kiểu Boolean
                
             });
 

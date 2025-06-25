@@ -21,12 +21,16 @@ namespace Services.DTO
         public int SampleMethodId { get; set; }
 
    
-        public Boolean StatusId { get; set; }
+        public bool StatusId { get; set; }
 
 
+        public string FullName { get; set; }
+
+        public string PhoneNumber { get; set; }
+
+        public string AddressRequest { get; set; }
 
 
-       
         public DateTime AppointmentTime { get; set; }
 
  
