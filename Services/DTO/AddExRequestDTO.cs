@@ -24,13 +24,7 @@ namespace Services.DTO
         public bool StatusId { get; set; }
 
 
-        public string FullName { get; set; }
-
-        public string PhoneNumber { get; set; }
-
-        public string AddressRequest { get; set; }
-
-
+        
         public DateTime AppointmentTime { get; set; }
 
  
