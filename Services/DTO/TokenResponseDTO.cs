@@ -12,5 +12,7 @@ namespace Services.DTO
 
         public required string RefreshToken { get; set; }
         public int RoleId { get; set; }
+
+        public String RoleName { get; set; } 
     }
 }

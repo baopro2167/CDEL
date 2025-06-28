@@ -15,6 +15,7 @@ using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
 using Azure.Core;
 using Repositories.Pagging;
+using Repositories.RoleRepo;
 namespace Services.AccountS
 {
     public class AccountService : IAccountService
@@ -22,11 +23,13 @@ namespace Services.AccountS
         private readonly IUserRepository _userRepository;
         private readonly IPasswordHasher<User> _hasher;
         private readonly IConfiguration _config;
-        public AccountService(IUserRepository userRepository, IPasswordHasher<User> hasher, IConfiguration configuration)
+        private readonly IRoleRepository _roleRepository;
+        public AccountService(IUserRepository userRepository, IPasswordHasher<User> hasher, IConfiguration configuration, IRoleRepository roleRepository)
         {
             _userRepository = userRepository;
             _hasher = hasher;
             _config = configuration;
+            _roleRepository = roleRepository;
         }
         private async Task<TokenResponseDTO> CreateTokenResponse(User? user)
         {
@@ -39,12 +42,15 @@ namespace Services.AccountS
             // 2. Sinh và lưu refresh token qua _userRepository
             var refreshToken = await GenerateAndSaveRefreshTokenAsync(user);
 
+            var role = await _roleRepository.GetByIdAsync(user.RoleId);
+
             // 3. Trả về DTO
             return new TokenResponseDTO
             {
                 AccessToken = accessToken,
                 RefreshToken = refreshToken,
-                RoleId = user.RoleId
+                RoleId = user.RoleId,
+                RoleName = role?.Name ?? "Unknown Role"
             };
         }
         public async Task<User> Register(RegisterUserDto registerUserDto)

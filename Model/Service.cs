@@ -21,8 +21,7 @@ namespace Model
 
         public string? Description { get; set; }
 
-        public string? Requirements { get; set; }
-
+       
         [Required]
         public string Type { get; set; } = null!;
 
