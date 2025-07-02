@@ -20,7 +20,7 @@ namespace Services.DTO
 
      
 
-        public Boolean? StatusId { get; set; }
+        public String? StatusId { get; set; }
 
 
 

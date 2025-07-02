@@ -22,7 +22,7 @@ namespace Services.EmailS
         {
             _configuration = configuration;
         }
-        public void sentEmail(EmailDTO emailDTO)
+        public async Task SendAsync(EmailDTO emailDTO)
         {
             var email = new MimeMessage();
             email.From.Add(MailboxAddress.Parse(_configuration.GetSection("EmailUsername").Value));

@@ -21,7 +21,7 @@ namespace Services.DTO
         public int SampleMethodId { get; set; }
 
    
-        public bool StatusId { get; set; }
+        public string StatusId { get; set; }
 
 
         

@@ -6,12 +6,8 @@ using System.Threading.Tasks;
 
 namespace Services.DTO
 {
-   public class UpdateKitDeliveryDTO
+    public class ForgotPasswordRequestDTO
     {
-     
-
-        public String StatusId { get; set; }
-
-
+        public string Email { get; set; } = default!;
     }
 }

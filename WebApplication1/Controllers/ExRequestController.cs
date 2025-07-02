@@ -15,6 +15,34 @@ namespace WebApplication1.Controllers
             _exRequestService = exRequestService;
         }
         /// <summary>
+        /// Staff xác nhận yêu cầu
+        /// </summary>
+        [HttpPost("{requestId}/accept")]
+        [ProducesResponseType(typeof(ExRequestResponseDTO), 200)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> Accept(int requestId)
+        {
+            try
+            {
+                var result = await _exRequestService.AcceptAsync(requestId);
+                return Ok(result);
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound(new { message = $"Request {requestId} not found." });
+            }
+        }
+    
+
+
+
+
+
+
+
+
+
+        /// <summary>
         /// Lấy  ExRequest theo id
         /// </summary>
         [HttpGet("{id}")]

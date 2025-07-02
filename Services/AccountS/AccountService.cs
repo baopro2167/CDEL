@@ -16,6 +16,9 @@ using Microsoft.EntityFrameworkCore;
 using Azure.Core;
 using Repositories.Pagging;
 using Repositories.RoleRepo;
+using Google.Apis.Auth;
+using Microsoft.Extensions.Logging;
+using Services.EmailS;
 namespace Services.AccountS
 {
     public class AccountService : IAccountService
@@ -24,13 +27,76 @@ namespace Services.AccountS
         private readonly IPasswordHasher<User> _hasher;
         private readonly IConfiguration _config;
         private readonly IRoleRepository _roleRepository;
-        public AccountService(IUserRepository userRepository, IPasswordHasher<User> hasher, IConfiguration configuration, IRoleRepository roleRepository)
+        private readonly string _googleClientId;
+        private readonly ILogger<AccountService> _logger;
+        private readonly IEmailService _emailService;
+        public AccountService(ILogger<AccountService> logger,IUserRepository userRepository, 
+            IPasswordHasher<User> hasher, IConfiguration configuration, IRoleRepository roleRepository,
+            IEmailService emailService)
         {
             _userRepository = userRepository;
             _hasher = hasher;
             _config = configuration;
             _roleRepository = roleRepository;
+            _emailService = emailService;
+            _logger = logger;
+            _googleClientId = _config["GoogleAuth:ClientId"]!;
         }
+        public async Task ForgotPasswordAsync(ForgotPasswordRequestDTO dto)
+        {
+            var user = await _userRepository.GetByEmailAsync(dto.Email);
+            if (user == null || !user.Status)
+                // Không tiết lộ user không tồn tại — chỉ kết thúc im lặng
+                return;
+
+            // 1) Sinh token ngẫu nhiên
+            var bytes = new byte[32];
+            using var rng = RandomNumberGenerator.Create();
+            rng.GetBytes(bytes);
+            var token = Convert.ToBase64String(bytes);
+
+            // 2) Lưu vào user với thời hạn 1 giờ
+            user.PasswordResetToken = token;
+            user.PasswordResetTokenExpiry = DateTime.UtcNow.AddHours(1);
+            await _userRepository.UpdateAsync(user);
+
+            // 3) Gửi email cho user
+            var resetLink = $"{_config["AppSettings:FrontendUrl"]}/reset-password?email={Uri.EscapeDataString(user.Email)}&token={Uri.EscapeDataString(token)}";
+            var html = $@"
+            <p>Chào {user.Name},</p>
+            <p>Bạn (hoặc ai đó) đã yêu cầu đặt lại mật khẩu. Vui lòng nhấn vào link dưới đây để reset mật khẩu (hết hạn sau 1h):</p>
+            <p><a href=""{resetLink}"">Đặt lại mật khẩu</a></p>
+            <p>Nếu bạn không yêu cầu, có thể bỏ qua email này.</p>
+        ";
+            var emailDto = new EmailDTO
+            {
+                To = user.Email,
+                Subject = "Yêu cầu đặt lại mật khẩu",
+                Body = html
+            };
+            await _emailService.SendAsync(emailDto);
+        }
+
+        public async Task ResetPasswordAsync(ResetPasswordRequestDTO dto)
+        {
+            var user = await _userRepository.GetByEmailAsync(dto.Email);
+            if (user == null
+             || user.PasswordResetToken != dto.Token
+             || user.PasswordResetTokenExpiry < DateTime.UtcNow)
+            {
+                throw new ApplicationException("Token không hợp lệ hoặc đã hết hạn.");
+            }
+
+            // Cập nhật mật khẩu mới
+            user.Password = _hasher.HashPassword(user, dto.NewPassword);
+            // Xóa token để tránh dùng lại
+            user.PasswordResetToken = null;
+            user.PasswordResetTokenExpiry = null;
+            await _userRepository.UpdateAsync(user);
+        }
+
+
+
         private async Task<TokenResponseDTO> CreateTokenResponse(User? user)
         {
             if (user is null)
@@ -220,6 +286,62 @@ namespace Services.AccountS
 
             return dtos;
         }
+        public async Task<GoogleLoginResponseDTO> LoginWithGoogleAsync(GoogleLoginRequestDTO dto)
+        {
+            GoogleJsonWebSignature.Payload payload;
+
+            try
+            {
+                payload = await GoogleJsonWebSignature.ValidateAsync(
+                   dto.IdToken,
+                   new GoogleJsonWebSignature.ValidationSettings
+                   {
+                       Audience = new[] { _googleClientId }
+                   });
+            }
+            catch (InvalidJwtException ex)
+            {
+                // hoặc: throw new ApplicationException($"Invalid Google token: {ex.Message}");
+                _logger?.LogWarning(ex, "Google token invalid");
+                throw new ApplicationException("Google token không hợp lệ.");
+            }
+            catch (Exception ex)
+            {
+                // Các lỗi khác
+                _logger.LogError(ex, "Unexpected error validating Google token");
+                throw;
+            }
+
+            // Nếu tới đây nghĩa là token hợp lệ
+            var user = await _userRepository.GetByEmailAsync(payload.Email!);
+            if (user == null)
+            {
+                user = new User
+                {
+                    Email = payload.Email!,
+                    Name = payload.Name,
+                    RoleId = 2,
+                    Status = true
+                };
+                await _userRepository.Register(user);
+            }
+
+            var tokens = await CreateTokenResponse(user);
+            return new GoogleLoginResponseDTO
+            {
+                AccessToken = tokens.AccessToken,
+                RefreshToken = tokens.RefreshToken,
+                RoleId = tokens.RoleId,
+                RoleName = tokens.RoleName
+            };
+
+        }
+
+
+
+
+
     }
-    }
+}
+    
 

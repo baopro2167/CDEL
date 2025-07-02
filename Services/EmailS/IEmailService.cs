@@ -9,6 +9,6 @@ namespace Services.EmailS
 {
     public interface IEmailService
     {
-        void sentEmail(EmailDTO emailDTO);
+        Task SendAsync(EmailDTO emailDTO);
     }
 }

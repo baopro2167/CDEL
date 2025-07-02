@@ -119,5 +119,28 @@ namespace Services.ExRequestSS
             }
             await _exRequestRepository.DeleteAsync(id);
         }
+
+        public async Task<ExRequestResponseDTO> AcceptAsync(int requestId)
+        {
+            // 1. Lấy request
+            var req = await _exRequestRepository.GetByIdAsync(requestId);
+            if (req == null)
+                throw new KeyNotFoundException($"Request with ID {requestId} not found.");
+
+            // 2. Cập nhật trạng thái (giả sử statusId = 2 là Accepted)
+            req.StatusId = "Accepted";
+            req.UpdateAt = DateTime.UtcNow;
+            await _exRequestRepository.UpdateAsync(req);
+
+            // 3. Trả về DTO
+            return new ExRequestResponseDTO
+            {
+                RequestId = req.Id,
+                Status = req.StatusId,
+                UpdatedAt = req.UpdateAt
+            };
+        }
+
     }
-}
+    }
+

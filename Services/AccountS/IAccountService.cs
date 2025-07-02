@@ -18,5 +18,10 @@ namespace Services.AccountS
         Task<TokenResponseDTO?> RefreshTokenAsync(RefreshTokenRequestDTO refreshToken);
         Task<PaginatedList<User>> GetByAccountRole(int roleid, int pageNumber, int pageSize);
         Task<IEnumerable<GetAllUserResponseDto>> GetAllAsync();
+
+        Task<GoogleLoginResponseDTO> LoginWithGoogleAsync(GoogleLoginRequestDTO dto);
+
+        Task ForgotPasswordAsync(ForgotPasswordRequestDTO dto);
+        Task ResetPasswordAsync(ResetPasswordRequestDTO dto);
     }
 }

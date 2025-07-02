@@ -29,7 +29,7 @@ namespace Model
        public int SampleMethodId { get; set; }
 
         [Required]
-        public Boolean StatusId { get; set; }
+        public String StatusId { get; set; }
 
         
       
@@ -45,9 +45,11 @@ namespace Model
 
         public int StaffId { get; set; } = 0;
 
-       
-        
+
+
         // Navigation propertiess
+        [JsonIgnore]
+
         public virtual User? User { get; set; }
 
 

@@ -22,7 +22,7 @@ namespace WebApplication1.Controllers
         public IActionResult SendEmail(EmailDTO email)
 
         {
-            _emailService.sentEmail(email);
+            _emailService.SendAsync(email);
 
 
 

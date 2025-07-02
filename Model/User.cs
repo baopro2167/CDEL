@@ -48,6 +48,8 @@ namespace Model
 
         public string? RefreshToken { get; set; } = null;
         public DateTime? RefreshTokenExpiryTime { get; set; } = null;
+        public string? PasswordResetToken { get; set; }
+        public DateTime? PasswordResetTokenExpiry { get; set; }
 
 
         [JsonIgnore]

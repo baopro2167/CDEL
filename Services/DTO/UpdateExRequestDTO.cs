@@ -19,7 +19,7 @@ namespace Services.DTO
         public int SampleMethodId { get; set; }
 
 
-        public Boolean StatusId { get; set; }
+        public string StatusId { get; set; }
 
 
 

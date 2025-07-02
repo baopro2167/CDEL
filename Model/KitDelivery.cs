@@ -26,7 +26,7 @@ namespace Model
 
         public DateTime? ReceivedAt { get; set; } = DateTime.UtcNow;
 
-        public Boolean? StatusId { get; set; }
+        public String StatusId { get; set; }
         [JsonIgnore]
         public virtual ExaminationRequest Request { get; set; } = null!;
         [JsonIgnore]

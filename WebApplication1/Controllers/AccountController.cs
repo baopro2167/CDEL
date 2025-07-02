@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Google.Apis.Auth;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Model;
@@ -131,5 +132,62 @@ namespace WebApplication1.Controllers
 
             return Ok(result);
         }
+
+
+        [HttpPost("google-login")]
+        public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginRequestDTO dto)
+        {
+            try
+            {
+                var result = await _accountService.LoginWithGoogleAsync(dto);
+                return Ok(result);
+            }
+            catch (ApplicationException ex)
+            {
+                // lỗi token invalid/expired hoặc user không hợp lệ
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                // lỗi không mong muốn
+                // Bạn có thể log ex.InnerException ở đây nếu cần
+                return StatusCode(500, new { message = "Có lỗi trong quá trình xử lý." });
+            }
+        }
+
+
+        /// <summary>
+        /// Gửi email quên mật khẩu
+        /// </summary>
+        [HttpPost("forgot-password")]
+        [ProducesResponseType(200)]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequestDTO dto)
+        {
+            await _accountService.ForgotPasswordAsync(dto);
+            // Trả 200 dù user tồn tại hay không, để không lộ thông tin
+            return Ok(new { message = "Nếu email tồn tại, bạn sẽ nhận được hướng dẫn trong inbox." });
+        }
+
+        /// <summary>
+        /// Đặt lại mật khẩu
+        /// </summary>
+        [HttpPost("reset-password")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequestDTO dto)
+        {
+            try
+            {
+                await _accountService.ResetPasswordAsync(dto);
+                return Ok(new { message = "Đặt lại mật khẩu thành công." });
+            }
+            catch (ApplicationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+
+
     }
 }

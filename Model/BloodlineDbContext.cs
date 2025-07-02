@@ -43,23 +43,30 @@ namespace Model
          {
              Id = 1,
              Name = "Admin",
-             CreatedAt = new DateTime(2023, 1, 1),
-             UpdatedAt = new DateTime(2023, 1, 1)
+             CreatedAt = new DateTime(2025, 1, 1),
+             UpdatedAt = new DateTime(2025, 1, 1)
          },
         new Role
         {
             Id = 2,
             Name = "User",
-            CreatedAt = new DateTime(2023, 1, 1),
-            UpdatedAt = new DateTime(2023, 1, 1)
+            CreatedAt = new DateTime(2025, 1, 1),
+            UpdatedAt = new DateTime(2025, 1, 1)
         },
          new Role
          {
              Id = 3,
              Name = "Staff",
-             CreatedAt = new DateTime(2023, 1, 1),
-             UpdatedAt = new DateTime(2023, 1, 1)
-         }
+             CreatedAt = new DateTime(2025, 1, 1),
+             UpdatedAt = new DateTime(2025, 1, 1)
+         },
+          new Role
+          {
+              Id = 4,
+              Name = "Manager",
+              CreatedAt = new DateTime(2025, 1, 1),
+              UpdatedAt = new DateTime(2025, 1, 1)
+          }
 
     );
 

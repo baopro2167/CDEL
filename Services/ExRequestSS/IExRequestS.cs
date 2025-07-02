@@ -19,7 +19,7 @@ namespace Services.ExRequestSS
         Task<ExaminationRequest> AddAsync(AddExRequestDTO addExRequestDto);
         Task<ExaminationRequest?> UpdateAsync(int id, UpdateExRequestDTO updateExRequestDto);
         Task DeleteAsync(int id);
-        
+        Task<ExRequestResponseDTO> AcceptAsync(int requestId);
 
 
     }

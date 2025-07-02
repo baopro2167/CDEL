@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Model.Migrations
 {
     /// <inheritdoc />
-    public partial class lkk : Migration
+    public partial class aaa : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -94,25 +94,23 @@ namespace Model.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ServiceSampleMethod",
+                name: "ServiceSampleMethods",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
                     ServiceId = table.Column<int>(type: "int", nullable: false),
                     SampleMethodId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ServiceSampleMethod", x => x.Id);
+                    table.PrimaryKey("PK_ServiceSampleMethods", x => new { x.ServiceId, x.SampleMethodId });
                     table.ForeignKey(
-                        name: "FK_ServiceSampleMethod_SampleMethod_SampleMethodId",
+                        name: "FK_ServiceSampleMethods_SampleMethod_SampleMethodId",
                         column: x => x.SampleMethodId,
                         principalTable: "SampleMethod",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ServiceSampleMethod_Service_ServiceId",
+                        name: "FK_ServiceSampleMethods_Service_ServiceId",
                         column: x => x.ServiceId,
                         principalTable: "Service",
                         principalColumn: "Id",
@@ -136,6 +134,8 @@ namespace Model.Migrations
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     RefreshToken = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     RefreshTokenExpiryTime = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    PasswordResetToken = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PasswordResetTokenExpiry = table.Column<DateTime>(type: "datetime2", nullable: true),
                     StaffId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
@@ -163,6 +163,7 @@ namespace Model.Migrations
                     UserId = table.Column<int>(type: "int", nullable: false),
                     Title = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Author = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreateAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdateAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
@@ -191,10 +192,7 @@ namespace Model.Migrations
                     AppointmentTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreateAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdateAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    StaffId = table.Column<int>(type: "int", nullable: false),
-                    FullName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    AdressRequest = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    StaffId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -311,11 +309,11 @@ namespace Model.Migrations
 
             migrationBuilder.InsertData(
                 table: "User",
-                columns: new[] { "Id", "Address", "CreatedAt", "Email", "Name", "Password", "Phone", "RefreshToken", "RefreshTokenExpiryTime", "RoleId", "StaffId", "Status", "UpdatedAt" },
+                columns: new[] { "Id", "Address", "CreatedAt", "Email", "Name", "Password", "PasswordResetToken", "PasswordResetTokenExpiry", "Phone", "RefreshToken", "RefreshTokenExpiryTime", "RoleId", "StaffId", "Status", "UpdatedAt" },
                 values: new object[,]
                 {
-                    { 1, "123 Admin Street", new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admin@bloodline.com", "System Admin", "AQAAAAIAAYagAAAAEMNhg1Bx5QAKCmZZy+N6T/C05Tc6+0vwWQ17vibbv68jKjtuzfp+bMA2z15j1ySUfw==", "1234567890", null, null, 1, null, false, new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) },
-                    { 2, "456 User Avenue", new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "john.doe@example.com", "John Doe", "AQAAAAIAAYagAAAAEGdT4Bxik+YTE6kNF/L7RQcysjRUIwSdcojiAWNvJtK7iBKIVUCYuxvXhNUqCNvGiQ==", "1987654321", null, null, 2, null, false, new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) }
+                    { 1, "123 Admin Street", new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admin@bloodline.com", "System Admin", "AQAAAAIAAYagAAAAEMNhg1Bx5QAKCmZZy+N6T/C05Tc6+0vwWQ17vibbv68jKjtuzfp+bMA2z15j1ySUfw==", null, null, "1234567890", null, null, 1, null, false, new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) },
+                    { 2, "456 User Avenue", new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "john.doe@example.com", "John Doe", "AQAAAAIAAYagAAAAEGdT4Bxik+YTE6kNF/L7RQcysjRUIwSdcojiAWNvJtK7iBKIVUCYuxvXhNUqCNvGiQ==", null, null, "1987654321", null, null, 2, null, false, new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) }
                 });
 
             migrationBuilder.CreateIndex(
@@ -364,14 +362,9 @@ namespace Model.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ServiceSampleMethod_SampleMethodId",
-                table: "ServiceSampleMethod",
+                name: "IX_ServiceSampleMethods_SampleMethodId",
+                table: "ServiceSampleMethods",
                 column: "SampleMethodId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ServiceSampleMethod_ServiceId",
-                table: "ServiceSampleMethod",
-                column: "ServiceId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_User_RoleId",
@@ -400,7 +393,7 @@ namespace Model.Migrations
                 name: "Rating");
 
             migrationBuilder.DropTable(
-                name: "ServiceSampleMethod");
+                name: "ServiceSampleMethods");
 
             migrationBuilder.DropTable(
                 name: "Kit");
