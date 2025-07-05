@@ -13,11 +13,15 @@ namespace Services.KitDeliverySS
     {
         Task<IEnumerable<KitDelivery>> GetAllKitAsync();
         Task<KitDelivery?> GetByIdAsync(int id);
-        Task<KitDelivery> AddAsync(AddKitDeliveryDTO addKitDeliveryDto);
+        Task<KitDeliveryResponseDTO> AddAsync(AddKitDeliveryDTO addKitDeliveryDto);
         Task<KitDelivery?> UpdateAsync(int id, UpdateKitDeliveryDTO updateKitDeliveryDto);
         Task DeleteAsync(int id);
         Task<PaginatedList<KitDelivery>> GetAll(int pageNumber, int pageSize);
+        Task<KitDeliveryStatusResponseDTO> MarkAsSentAsync(int kitDeliveryId);
 
+        Task<UpdateKitDeliverySSResponseDTO> AcknowledgeAsync(int kitDeliveryId, UpdateKitDeliverySSDTO dto);
+
+        //Task<KitDeliveryResponseDTO> CreateKitDeliveryAsync(CreateKitDeliveryDTO dto);
 
     }
 }

@@ -25,6 +25,10 @@ using Services.EmailS;
 using Services.BlogPostSS;
 using Repositories.BlogPostRepo;
 using Repositories.RoleRepo;
+using Repositories.StaffRepo;
+using Services.StaffSS;
+
+
 
 var builder = WebApplication.CreateBuilder(args);
 //var port = Environment.GetEnvironmentVariable("PORT") ?? "8080"; // Cổng mặc định nếu không có PORT
@@ -66,7 +70,11 @@ builder.Services.AddScoped<IExRequestS, ExRequestS>();
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<IStaffRepository, StaffRepository>();
+builder.Services.AddScoped<IStaffService, StaffService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+
+
 
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 

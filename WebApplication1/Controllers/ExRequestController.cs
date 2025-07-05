@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Model;
 using Services.DTO;
 using Services.ExRequestSS;
@@ -14,10 +15,87 @@ namespace WebApplication1.Controllers
         {
             _exRequestService = exRequestService;
         }
+
+        /// <summary>
+        /// Staff cập nhật tiến trình xét nghiệm (SampleCollected → Processing → Completed)
+        /// </summary>
+        [HttpPatch("{requestId}/status")]
+        [Authorize(Roles = "3")]
+
+        public async Task<ActionResult<ExaminationRequestStatusResponseDTO>> UpdateStatus(
+            int requestId,
+            [FromBody] UpdateExaminationRequestStatusDTO dto)
+        {
+            if (dto == null)
+                return BadRequest("Request body must contain status.");
+
+            try
+            {
+                var result = await _exRequestService.UpdateStatusAsync(requestId, dto);
+                return Ok(result);
+            }
+            catch (KeyNotFoundException knf)
+            {
+                return NotFound(knf.Message);
+            }
+            catch (InvalidOperationException inv)
+            {
+                return BadRequest(inv.Message);
+            }
+            catch (ArgumentException argEx)
+            {
+                return BadRequest(argEx.Message);
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+        /// <summary>
+        /// Manager phân công staff cho request (không nhận trong vòng 30 phút)
+        /// </summary>
+        [HttpPatch("{requestId}/assign")]
+       
+        public async Task<ActionResult<ExRequestAssignResponseDTO>> Assign(
+            int requestId,
+            [FromBody] AssignStaffRequestDTO dto)
+        {
+            if (dto == null)
+                return BadRequest("Request body must contain staffId.");
+
+            // Kiểm tra tồn tại request
+            var existing = await _exRequestService.GetByIdAsync(requestId);
+            if (existing == null)
+                return NotFound($"Request with ID {requestId} not found.");
+
+            try
+            {
+                var result = await _exRequestService.AssignStaffAsync(requestId, dto);
+                return Ok(result);
+            }
+            catch (InvalidOperationException ex)
+            {
+                // Xung đột khung giờ 30 phút
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+
+
+
         /// <summary>
         /// Staff xác nhận yêu cầu
         /// </summary>
         [HttpPost("{requestId}/accept")]
+        [Authorize(Roles = "3")]
         [ProducesResponseType(typeof(ExRequestResponseDTO), 200)]
         [ProducesResponseType(404)]
         public async Task<IActionResult> Accept(int requestId)
@@ -87,7 +165,7 @@ namespace WebApplication1.Controllers
             return Ok(ExRequestS);
         }
         /// <summary>
-        /// CLấy danh sách ExRequest có phân trang của customer
+        /// lấy lịch sử booking exresquest theo user id có phân trang
         /// </summary>
         [HttpGet("customer")]
         public async Task<ActionResult<IEnumerable<ExRequestCustomerDTO>>> GetExaminationRequests([FromQuery] int userId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)

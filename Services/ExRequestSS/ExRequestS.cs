@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Model;
 using Repositories.ExRequestRepo;
 using Repositories.Pagging;
 using Repositories.ServiceRepo;
 using Repositories.ServiceSMRepo;
+using Repositories.StaffRepo;
 using Services.DTO;
 namespace Services.ExRequestSS
 {
@@ -16,11 +18,46 @@ namespace Services.ExRequestSS
     {
         private readonly IExRequestRepository _exRequestRepository;
         private readonly IServiceRepository _serviceRepository;
-        public ExRequestS(IExRequestRepository exRequestRepository, IServiceRepository serviceRepository)
+        private readonly IStaffRepository _staffRepo;
+        public ExRequestS(IExRequestRepository exRequestRepository, IServiceRepository serviceRepository
+            , IStaffRepository staffRepository)
         {
             _exRequestRepository = exRequestRepository;
             _serviceRepository = serviceRepository;
+            _staffRepo = staffRepository;
         }
+        public async Task<ExaminationRequestStatusResponseDTO> UpdateStatusAsync(int requestId, UpdateExaminationRequestStatusDTO dto)
+        {
+            if (dto == null || string.IsNullOrWhiteSpace(dto.Status))
+                throw new ArgumentException("Status is required.", nameof(dto));
+
+            // 1. Lấy request
+            var req = await _exRequestRepository.GetByIdAsync(requestId);
+            if (req == null)
+                throw new KeyNotFoundException($"Request with ID {requestId} not found.");
+
+            // 2. Kiểm tra giá trị status hợp lệ
+            var allowed = new[] { "SampleCollected", "Processing", "Completed" };
+            if (!allowed.Contains(dto.Status))
+                throw new InvalidOperationException($"Status phải là một trong: {string.Join(", ", allowed)}.");
+
+            // 3. (Tuỳ chọn) kiểm tra thứ tự chuyển trạng thái nếu cần
+
+            // 4. Cập nhật
+            req.StatusId = dto.Status;
+            req.UpdateAt = DateTime.UtcNow;
+            await _exRequestRepository.UpdateAsync(req);
+
+            // 5. Build response
+            return new ExaminationRequestStatusResponseDTO
+            {
+                RequestId = req.Id,
+                Status = req.StatusId,
+                UpdatedAt = req.UpdateAt
+            };
+        }
+
+
         public async Task<IEnumerable<ExaminationRequest>> GetAllAsync()
         {
             return await _exRequestRepository.GetAsync();
@@ -141,6 +178,58 @@ namespace Services.ExRequestSS
             };
         }
 
+        public async Task<ExRequestAssignResponseDTO> AssignStaffAsync(int requestId, AssignStaffRequestDTO dto)
+        {
+            // 0. Validate đầu vào cơ bản
+            if (dto == null)
+                throw new ArgumentNullException(nameof(dto), "Request body must contain staffId.");
+
+            // 1. Kiểm tra Staff tồn tại
+            var staff = await _staffRepo.GetByIdAsync(dto.StaffId);
+            if (staff == null)
+                throw new KeyNotFoundException($"Staff with ID {dto.StaffId} not found.");
+
+            // 2. Lấy request cần phân công
+            var req = await _exRequestRepository.GetByIdAsync(requestId);
+            if (req == null)
+                throw new KeyNotFoundException($"Request with ID {requestId} not found.");
+
+            // 3. Kiểm tra xung đột trong khoảng 30 phút
+            var lowerBound = req.AppointmentTime.AddMinutes(-30);
+            var upperBound = req.AppointmentTime.AddMinutes(30);
+
+            // 4. Kiểm tra conflict bằng BETWEEN
+            bool hasConflict = await _exRequestRepository
+                .GetAll()
+                .Where(r => r.StaffId == dto.StaffId && r.Id != requestId)
+                .AnyAsync(r =>
+                    r.AppointmentTime >= lowerBound
+                 && r.AppointmentTime <= upperBound
+                );
+
+            if (hasConflict)
+                throw new InvalidOperationException("Staff đã được phân công vào khung giờ trong vòng 30 phút.");
+
+            // 4. Gán Staff và lưu thay đổi
+            req.StaffId = dto.StaffId;
+            req.UpdateAt = DateTime.UtcNow;
+            await _exRequestRepository.UpdateAsync(req);
+
+            // 5. Build response
+            return new ExRequestAssignResponseDTO
+            {
+                RequestId = req.Id,
+                AssignedStaff = new AssignedStaffDTO
+                {
+                    StaffId = staff.Id,
+                    StaffName = staff.FullName
+                },
+                UpdatedAt = req.UpdateAt
+            };
+
+        }
+
+        
     }
     }
 

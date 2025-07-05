@@ -23,5 +23,12 @@ namespace Services.AccountS
 
         Task ForgotPasswordAsync(ForgotPasswordRequestDTO dto);
         Task ResetPasswordAsync(ResetPasswordRequestDTO dto);
+
+
+        Task<UpdateUserProfileResponseDTO> UpdateProfileAsync(int userId, UpdateUserProfileDTO dto);
+
+        Task<UpdateStatusResponseDTO> DeactivateAsync(int userId);
+
+        Task<GetUserByIdResponseDTO?> GetByIdAsync(int userId);
     }
 }

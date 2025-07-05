@@ -7,22 +7,14 @@ using System.Threading.Tasks;
 
 namespace Services.DTO
 {
-    public class AddKitDeliveryDTO
+    public class UpdateUserProfileDTO
     {
-     
+        public string Name { get; set; } = string.Empty!;
 
-        public int RequestId { get; set; }
+       
+        public string? Phone { get; set; }
 
-
-        public int KitId { get; set; }
-
-       public string? Kittype { get; set; }
-
-
-
-        
-
-
-
+       
+        public string? Address { get; set; }
     }
 }

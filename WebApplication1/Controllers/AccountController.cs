@@ -17,6 +17,73 @@ namespace WebApplication1.Controllers
         {
             _accountService = accountService;
         }
+        /// <summary>
+        /// Lấy thông tin user theo ID
+        /// </summary>
+        [HttpGet("{userId}")]
+        
+        public async Task<ActionResult<GetUserByIdResponseDTO>> GetById(int userId)
+        {
+            var dto = await _accountService.GetByIdAsync(userId);
+            if (dto == null)
+                return NotFound($"User with ID {userId} not found.");
+
+            return Ok(dto);
+        }
+
+
+
+        /// <summary>
+        /// Cập nhật profile (Name, Phone, Address)
+        /// </summary>
+        [HttpPatch("{userId}/profile")]
+      
+       
+        public async Task<ActionResult<UpdateUserProfileResponseDTO>> UpdateProfile(
+            int userId,
+            [FromBody] UpdateUserProfileDTO dto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                var result = await _accountService.UpdateProfileAsync(userId, dto);
+                return Ok(result);
+            }
+            catch (KeyNotFoundException knf)
+            {
+                return NotFound(knf.Message);
+            }
+            catch (ArgumentException argEx)
+            {
+                return BadRequest(argEx.Message);
+            }
+        }
+
+
+
+
+
+
+        /// <summary>
+        /// Admin vô hiệu hóa user (status = false)
+        /// </summary>
+        [HttpPatch("{userId}/status")]
+        [Authorize(Roles = "1")]
+        
+        public async Task<ActionResult<UpdateStatusResponseDTO>> Deactivate(int userId)
+        {
+            try
+            {
+                var result = await _accountService.DeactivateAsync(userId);
+                return Ok(result);
+            }
+            catch (KeyNotFoundException knf)
+            {
+                return NotFound(knf.Message);
+            }
+        }
 
         /// <summary>
         /// Lấy toàn bộ accountall

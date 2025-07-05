@@ -21,6 +21,8 @@ namespace Services.ExRequestSS
         Task DeleteAsync(int id);
         Task<ExRequestResponseDTO> AcceptAsync(int requestId);
 
+        Task<ExRequestAssignResponseDTO> AssignStaffAsync(int requestId, AssignStaffRequestDTO dto);
 
+        Task<ExaminationRequestStatusResponseDTO> UpdateStatusAsync(int requestId, UpdateExaminationRequestStatusDTO dto);
     }
 }

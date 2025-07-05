@@ -1,28 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Services.DTO
 {
-    public class AddKitDeliveryDTO
+    public class CreateKitDeliveryDTO
     {
-     
-
         public int RequestId { get; set; }
-
-
-        public int KitId { get; set; }
-
-       public string? Kittype { get; set; }
-
-
-
-        
-
-
-
+        public int StaffId { get; set; }
+        public string KitType { get; set; } = default!;
     }
 }

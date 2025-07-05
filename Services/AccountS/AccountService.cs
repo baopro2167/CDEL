@@ -42,6 +42,52 @@ namespace Services.AccountS
             _logger = logger;
             _googleClientId = _config["GoogleAuth:ClientId"]!;
         }
+        public async  Task<UpdateStatusResponseDTO> DeactivateAsync(int userId)
+        {
+            // 1. Lấy user
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null)
+                throw new KeyNotFoundException($"User with ID {userId} not found.");
+
+            // 2. Đặt status = false và cập nhật UpdatedAt
+            user.Status = false;
+            user.UpdatedAt = DateTime.UtcNow;
+            await _userRepository.UpdateAsync(user);
+
+            // 3. Trả về DTO
+            return new UpdateStatusResponseDTO
+            {
+                UserId = user.Id,
+                Status = user.Status,
+                UpdatedAt = user.UpdatedAt
+            };
+        }
+
+        public async Task<UpdateUserProfileResponseDTO> UpdateProfileAsync(int userId, UpdateUserProfileDTO dto)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null)
+                throw new KeyNotFoundException($"User with ID {userId} not found.");
+
+            // 2. Cập nhật các trường được phép
+            user.Name = dto.Name;
+            user.Phone = dto.Phone;
+            user.Address = dto.Address;
+            user.UpdatedAt = DateTime.UtcNow;
+
+            // 3. Lưu
+            await _userRepository.UpdateAsync(user);
+
+            // 4. Trả về DTO
+            return new UpdateUserProfileResponseDTO
+            {
+                UserId = user.Id,
+                Name = user.Name,
+                Phone = user.Phone,
+                Address = user.Address,
+                UpdatedAt = user.UpdatedAt
+            };
+        }
         public async Task ForgotPasswordAsync(ForgotPasswordRequestDTO dto)
         {
             var user = await _userRepository.GetByEmailAsync(dto.Email);
@@ -149,6 +195,8 @@ namespace Services.AccountS
             var user = await _userRepository.GetByEmailAsync(loginUserDto.Email);
             if (user is null)
                 throw new ApplicationException("Email chưa được đăng ký.");
+            if (!user.Status)
+                throw new ApplicationException("Tài khoản của bạn đã bị khóa.");
 
             // 2) Verify mật khẩu
             var result = _hasher.VerifyHashedPassword(user, user.Password, loginUserDto.Password);
@@ -251,7 +299,9 @@ namespace Services.AccountS
 
 
                 RoleId = registerAdmin.RoleId,
+                Status = true,
             };
+           
             user.Password = _hasher.HashPassword(user, registerAdmin.Password);
             await _userRepository.Register(user);
 
@@ -337,10 +387,22 @@ namespace Services.AccountS
 
         }
 
+        public async Task<GetUserByIdResponseDTO?> GetByIdAsync(int userId)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null)
+                return null;
 
-
-
-
+            return new GetUserByIdResponseDTO
+            {
+                UserId = user.Id,
+                Name = user.Name,
+                Email = user.Email,
+                Phone = user.Phone,
+                Address = user.Address,
+               
+            };
+        }
     }
 }
     

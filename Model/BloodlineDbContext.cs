@@ -95,6 +95,7 @@ namespace Model
         CreatedAt = new DateTime(2023, 1, 1),
         UpdatedAt = new DateTime(2023, 1, 1)
     }
+    
 );
 
             // Cấu hình độ chính xác và tỷ lệ cho Price

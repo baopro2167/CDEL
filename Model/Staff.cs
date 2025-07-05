@@ -16,7 +16,7 @@ namespace Model
         public string Email { get; set; }
 
         [ForeignKey("UserId")]
-        public int UserId { get; set; }
+        public int? UserId { get; set; }
 
         [JsonIgnore]
 

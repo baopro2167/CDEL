@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Services.KitDeliverySS;
 using Services.DTO;
+using Microsoft.AspNetCore.Authorization;
 namespace WebApplication1.Controllers
 {
     [Route("api/KitDelivery")]
@@ -15,10 +16,72 @@ namespace WebApplication1.Controllers
         }
 
         /// <summary>
-        /// Lấy danh sách Kitdeliveries theo id
+        /// User xác nhận đã nhận hoặc đã gửi lại (“Sent”→“Received”/“Returned”)
         /// </summary>
+        [HttpPatch("{kitDeliveryId}/acknowledge")]
+       
+       
+        public async Task<ActionResult<UpdateKitDeliverySSResponseDTO>> Acknowledge(
+            int kitDeliveryId,
+            [FromBody] UpdateKitDeliverySSDTO dto)
+        {
+            if (dto == null)
+                return BadRequest("Request body must contain status.");
 
-        [HttpGet("{id}")]
+            try
+            {
+                var result = await _kitDeliveryService.AcknowledgeAsync(kitDeliveryId, dto);
+                return Ok(result);
+            }
+            catch (KeyNotFoundException knf)
+            {
+                return NotFound(knf.Message);
+            }
+            catch (InvalidOperationException inv)
+            {
+                return BadRequest(inv.Message);
+            }
+            catch (ArgumentException argEx)
+            {
+                return BadRequest(argEx.Message);
+            }
+        }
+
+        /// <summary>
+        /// Đánh dấu đơn giao kit là Sent (từ Pending → Sent) mà không cần truyền body
+        /// </summary>
+        [HttpPatch("{kitDeliveryId}/status")]
+        [Authorize(Roles = "3")]
+
+        public async Task<ActionResult<KitDeliveryStatusResponseDTO>> MarkAsSent(int kitDeliveryId)
+        {
+            try
+            {
+                var result = await _kitDeliveryService.MarkAsSentAsync(kitDeliveryId);
+                // thành công: trả nguyên DTO
+                return Ok(result);
+            }
+            catch (KeyNotFoundException knf)
+            {
+                // 404 với plain string
+                return NotFound(knf.Message);
+            }
+            catch (InvalidOperationException inv)
+            {
+                // 400 với plain string
+                return BadRequest(inv.Message);
+            }
+
+        }
+
+
+
+
+            /// <summary>
+            /// Lấy danh sách Kitdeliveries theo id
+            /// </summary>
+
+            [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
             var delivery = await _kitDeliveryService.GetByIdAsync(id);
@@ -54,10 +117,11 @@ namespace WebApplication1.Controllers
 
 
         /// <summary>
-        /// Create Kitdeliveries
+        /// STAFF Create Kitdeliveries
         /// </summary>
 
         [HttpPost]
+        [Authorize(Roles = "3")]
         public async Task<IActionResult> Add([FromBody] AddKitDeliveryDTO addKitDeliveryDTO)
         {
 
@@ -69,7 +133,7 @@ namespace WebApplication1.Controllers
             try
             {
                 var addKit = await _kitDeliveryService.AddAsync(addKitDeliveryDTO);
-                return CreatedAtAction(nameof(GetById), new { id = addKit.Id }, addKit);
+                return CreatedAtAction(nameof(GetById), new { id = addKit.KitDeliveryId }, addKit);
             }
 
             catch (ArgumentException ex)
