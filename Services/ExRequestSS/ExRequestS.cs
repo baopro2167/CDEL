@@ -7,10 +7,13 @@ using Microsoft.EntityFrameworkCore;
 using Model;
 using Repositories.ExRequestRepo;
 using Repositories.Pagging;
+using Repositories.SampleMethodRepo;
 using Repositories.ServiceRepo;
 using Repositories.ServiceSMRepo;
 using Repositories.StaffRepo;
+using Repositories.UserRepo;
 using Services.DTO;
+using Services.EmailS;
 namespace Services.ExRequestSS
 {
     public class ExRequestS : IExRequestS
@@ -19,12 +22,19 @@ namespace Services.ExRequestSS
         private readonly IExRequestRepository _exRequestRepository;
         private readonly IServiceRepository _serviceRepository;
         private readonly IStaffRepository _staffRepo;
+        private readonly IEmailService _emailService;
+        private readonly IUserRepository _userRepository;
+        private readonly ISampleMethodRepository _sampleMethodRepository;
         public ExRequestS(IExRequestRepository exRequestRepository, IServiceRepository serviceRepository
-            , IStaffRepository staffRepository)
+            , IStaffRepository staffRepository, IUserRepository userRepository , ISampleMethodRepository sampleMethodRepository
+            , IEmailService emailService)
         {
             _exRequestRepository = exRequestRepository;
             _serviceRepository = serviceRepository;
             _staffRepo = staffRepository;
+            _emailService = emailService;
+            _userRepository = userRepository;
+            _sampleMethodRepository = sampleMethodRepository;
         }
         public async Task<ExaminationRequestStatusResponseDTO> UpdateStatusAsync(int requestId, UpdateExaminationRequestStatusDTO dto)
         {
@@ -124,6 +134,25 @@ namespace Services.ExRequestSS
             };
           
             await _exRequestRepository.AddAsync(examinationRequest);
+            var user = await _userRepository.GetByIdAsync(addExRequestDto.UserId);
+            var service = await _serviceRepository.GetByIdAsync(addExRequestDto.ServiceId);
+            var sampleMethod = await _sampleMethodRepository.GetByIdAsync(addExRequestDto.SampleMethodId);
+            var body = $@"
+      <p>Xin chào {user.Name},</p>
+      <p>Yêu cầu khám của bạn đã được ghi nhận:</p>
+      <ul>
+        <li><strong>Dịch vụ:</strong> {service.Name}</li>
+        <li><strong>Phương pháp lấy mẫu:</strong> {sampleMethod.Name}</li>
+        <li><strong>Thời gian hẹn:</strong> {examinationRequest.AppointmentTime:yyyy-MM-dd HH:mm} UTC</li>
+      </ul>";
+
+            // 4. Gửi mail (giữ nguyên EmailService)
+            await _emailService.SendAsync(new EmailDTO
+            {
+                To = user.Email,
+                Subject = "Gửi yêu cầu khám thành công",
+                Body = body
+            });
             return examinationRequest;
         }
         public async Task<ExaminationRequest?> UpdateAsync(int id, UpdateExRequestDTO updateExRequestDto)
