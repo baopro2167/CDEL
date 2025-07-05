@@ -58,9 +58,12 @@ namespace Services.ExRequestSS
         }
 
 
-        public async Task<IEnumerable<ExaminationRequest>> GetAllAsync()
+        public async Task<IEnumerable<ExaminationRequest>> GetAllAsync(IEnumerable<string> includedStatusIds)
         {
-            return await _exRequestRepository.GetAsync();
+            return await _exRequestRepository
+         .GetAll()
+         .Where(r => includedStatusIds.Contains(r.StatusId))
+         .ToListAsync();
         }
         public async Task<ExaminationRequest?> GetByIdAsync(int id)
         {
@@ -114,7 +117,7 @@ namespace Services.ExRequestSS
                 ServiceId = addExRequestDto.ServiceId,
                 PriorityId = addExRequestDto.PriorityId,
                 SampleMethodId = addExRequestDto.SampleMethodId,
-                StatusId = addExRequestDto.StatusId,
+                StatusId = "Not Accept",
                 AppointmentTime = addExRequestDto.AppointmentTime.Kind == DateTimeKind.Unspecified
          ? DateTime.SpecifyKind(addExRequestDto.AppointmentTime, DateTimeKind.Utc)
          : addExRequestDto.AppointmentTime.ToUniversalTime(),

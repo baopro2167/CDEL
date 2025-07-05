@@ -92,10 +92,10 @@ namespace WebApplication1.Controllers
 
 
         /// <summary>
-        /// Staff xác nhận yêu cầu
+        /// Manager xác nhận yêu cầu
         /// </summary>
         [HttpPost("{requestId}/accept")]
-        [Authorize(Roles = "3")]
+        [Authorize(Roles = "4")]
         [ProducesResponseType(typeof(ExRequestResponseDTO), 200)]
         [ProducesResponseType(404)]
         public async Task<IActionResult> Accept(int requestId)
@@ -132,13 +132,15 @@ namespace WebApplication1.Controllers
         }
 
         /// <summary>
-        /// Lấy toàn bộ ExRequest
+        /// Manger Lấy toàn bộ ExRequest
         /// </summary>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ExaminationRequest>>> GetAll()
+        [Authorize(Roles = "4")]
+        public async Task<ActionResult<IEnumerable<ExaminationRequest>>> GetFiltered(
+    [FromQuery] string[] excludeStatuses)
         {
-            var ExRequestS = await _exRequestService.GetAllAsync();
-            return Ok(ExRequestS);
+            var list = await _exRequestService.GetAllAsync(excludeStatuses);
+            return Ok(list);
         }
         /// <summary>
         /// lấy danh sách đơn hàng theo AccountId

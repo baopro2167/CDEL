@@ -11,7 +11,7 @@ namespace Services.ExRequestSS
 {
     public interface IExRequestS
     {
-        Task<IEnumerable<ExaminationRequest>> GetAllAsync();
+        Task<IEnumerable<ExaminationRequest>> GetAllAsync(IEnumerable<string> includedStatusIds);
         Task<ExaminationRequest?> GetByIdAsync(int id);
         Task<PaginatedList<ExaminationRequest>> GetAll(int pageNumber, int pageSize);
         Task<PaginatedList<ExaminationRequest>> GetByAccountId(int Userid, int pageNumber, int pageSize);

@@ -22,7 +22,7 @@ namespace WebApplication1.Controllers
         /// <summary>
         /// Lấy danh sách Kit theo id
         /// </summary>
-        [Authorize]
+        [Authorize(Roles = "3,4")]
         [HttpGet("{id}")]
         public async Task<ActionResult<Kit>> GetById(int id)
         {
