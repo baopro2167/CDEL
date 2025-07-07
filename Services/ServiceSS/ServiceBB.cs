@@ -9,6 +9,7 @@ using Repositories.SampleMethodRepo;
 using Repositories.ServiceRepo;
 using Services.DTO;
 using Repositories.ServiceSMRepo;
+using Microsoft.EntityFrameworkCore;
 namespace Services.ServiceSS
 {
     public class ServiceBB : IServiceBB
@@ -174,5 +175,7 @@ namespace Services.ServiceSS
             await _serviceRepository.DeleteAsync(id);
 
         }
+
+      
     }
 }

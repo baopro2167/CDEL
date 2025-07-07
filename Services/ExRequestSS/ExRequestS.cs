@@ -25,6 +25,8 @@ namespace Services.ExRequestSS
         private readonly IEmailService _emailService;
         private readonly IUserRepository _userRepository;
         private readonly ISampleMethodRepository _sampleMethodRepository;
+
+        private static readonly string[] DefaultStatuses = new[] { "Not Accept", "Accepted" };
         public ExRequestS(IExRequestRepository exRequestRepository, IServiceRepository serviceRepository
             , IStaffRepository staffRepository, IUserRepository userRepository , ISampleMethodRepository sampleMethodRepository
             , IEmailService emailService)
@@ -261,7 +263,32 @@ namespace Services.ExRequestSS
 
         }
 
-        
+        public async Task<IEnumerable<ExStatusRequestDTO>> GetStatusesWithNamesAsync(IEnumerable<string>? includedStatusIds= null)
+        {
+            var statuses = (includedStatusIds != null && includedStatusIds.Any())
+       ? includedStatusIds
+       : DefaultStatuses;
+
+            return await _exRequestRepository
+                .GetAll()  // IQueryable<ExaminationRequest>
+                .Where(r => statuses.Contains(r.StatusId))
+                .Select(r => new ExStatusRequestDTO
+                {
+                    Id = r.Id,
+                    UserId = r.UserId,
+                    ServiceId = r.ServiceId,
+                    ServiceName = r.Service.Name,
+                    SampleMethodId = r.SampleMethodId,
+                    SampleMethodName = r.SampleMethod.Name,
+                    StatusId = r.StatusId,
+                    AppointmentTime = r.AppointmentTime,
+                    CreateAt = r.CreateAt,
+                    UpdateAt = r.UpdateAt,
+                    StaffId = r.StaffId
+                })
+                .ToListAsync();
+
+        }
     }
     }
 

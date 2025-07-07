@@ -16,6 +16,8 @@ namespace Repositories.ServiceRepo
         Task<Service> AddAsync(Service service);
         Task<Service> UpdateAsync(Service service);
         Task DeleteAsync(int id);
-      
+
+        Task<IEnumerable<Service>> GetByIdsAsync(IEnumerable<int> ids);
+
     }
 }

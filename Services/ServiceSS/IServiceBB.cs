@@ -19,5 +19,7 @@ namespace Services.ServiceSS
         Task<ServiceGetNameDTO?> UpdateAsync(int id, UpdateServiceBDTO updateServiceBDto);
         Task DeleteAsync(int id);
 
+       
+
     }
 }

@@ -15,7 +15,17 @@ namespace WebApplication1.Controllers
         {
             _exRequestService = exRequestService;
         }
-
+      
+        /// <summary>
+        /// get các exrequest theo NotAccept và Accepted.
+        /// </summary>
+        [HttpGet("status")]
+        public async Task<IActionResult> GetAll()
+        {
+            // Nếu muốn override, client có thể truyền ?statuses=Accepted,Processing
+             var dtos = await _exRequestService.GetStatusesWithNamesAsync();
+            return Ok(dtos);
+        }
         /// <summary>
         /// Staff cập nhật tiến trình xét nghiệm (SampleCollected → Processing → Completed)
         /// </summary>

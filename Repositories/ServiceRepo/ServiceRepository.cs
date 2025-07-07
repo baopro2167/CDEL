@@ -63,5 +63,12 @@ namespace Repositories.ServiceRepo
                 await _context.SaveChangesAsync();
             }
         }
+
+        public async Task<IEnumerable<Service>> GetByIdsAsync(IEnumerable<int> ids)
+        {
+            return await _context.Set<Service>()
+     .Where(s => ids.Contains(s.Id))
+     .ToListAsync();
+        }
     }
 }
