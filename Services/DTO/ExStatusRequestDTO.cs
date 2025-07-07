@@ -13,6 +13,7 @@ namespace Services.DTO
 
         public int UserId { get; set; }
 
+        public string UserName { get; set; } = default!;
         public int ServiceId { get; set; }
         public string ServiceName { get; set; } = default!;
        

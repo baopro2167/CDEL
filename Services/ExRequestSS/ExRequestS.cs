@@ -276,6 +276,7 @@ namespace Services.ExRequestSS
                 {
                     Id = r.Id,
                     UserId = r.UserId,
+                    UserName = r.User!.Name,
                     ServiceId = r.ServiceId,
                     ServiceName = r.Service.Name,
                     SampleMethodId = r.SampleMethodId,
