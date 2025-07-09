@@ -144,6 +144,7 @@ namespace Services.ExRequestSS
       <p>Yêu cầu khám của bạn đã được ghi nhận:</p>
       <ul>
           <li><strong>Số điện thoại:</strong> {user.Phone}</li>
+         <li><strong>Địa chỉ:</strong> {user.Address}</li>
         <li><strong>Dịch vụ:</strong> {service.Name}</li>
         <li><strong>Giá dịch vụ:</strong> {service.Price:#,##0}</li>
         <li><strong>Phương pháp lấy mẫu:</strong> {sampleMethod.Name}</li>
