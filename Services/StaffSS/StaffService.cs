@@ -1,5 +1,6 @@
 ﻿using Model;
 using Repositories.StaffRepo;
+using Repositories.UserRepo;
 using Services.DTO;
 using System;
 using System.Collections.Generic;
@@ -12,10 +13,11 @@ namespace Services.StaffSS
     public class StaffService : IStaffService
     {
         private readonly IStaffRepository _staffRepository;
-
-        public StaffService(IStaffRepository staffRepository)
+        private readonly IUserRepository _userRepository;
+        public StaffService(IStaffRepository staffRepository, IUserRepository userRepository)
         {
             _staffRepository = staffRepository;
+            _userRepository = userRepository;
         }
 
         public async Task<CreateStaffResponseDto> CreateAsync(CreateStaffRequestDTO dto)
@@ -28,7 +30,8 @@ namespace Services.StaffSS
             var staff = new Staff
             {
                 FullName = dto.FullName,
-                Email = dto.Email
+                Email = dto.Email,
+                UserId = dto.UserId // Assuming UserId is part of CreateStaffRequestDTO
             };
 
             await _staffRepository.AddAsync(staff);
@@ -38,8 +41,8 @@ namespace Services.StaffSS
                 Id = staff.Id, //
                 FullName = staff.FullName,
                 Email = staff.Email,
-               
-               
+                UserId = staff.UserId // Assuming UserId is part of CreateStaffResponseDto
+
             };
         }
 
@@ -52,8 +55,9 @@ namespace Services.StaffSS
                Id = staff.Id,
                 FullName = staff.FullName,
                 Email = staff.Email,
-               
-               
+                UserId = staff.UserId // Assuming UserId is part of CreateStaffResponseDto
+
+
             };
         }
         public async Task<Staff?> UpdateStaffAsync(int id, UpdateStaffDTO updateStaffDto)
@@ -67,7 +71,8 @@ namespace Services.StaffSS
 
             // Cập nhật các trường
             staff.FullName = updateStaffDto.FullName;
-            staff.Email = updateStaffDto.Email;
+            staff.Email = updateStaffDto.Email
+                ;
 
             // Nếu entity có trường UpdatedAt, gán thêm:
             // staff.UpdatedAt = DateTime.UtcNow;

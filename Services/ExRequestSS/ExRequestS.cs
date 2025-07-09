@@ -117,7 +117,7 @@ namespace Services.ExRequestSS
 
 
 
-        public async Task<ExaminationRequest> AddAsync(AddExRequestDTO addExRequestDto)
+        public async Task<ExaminationResponeDTO> AddAsync(AddExRequestDTO addExRequestDto)
         {
             if (addExRequestDto == null)
             {
@@ -143,7 +143,9 @@ namespace Services.ExRequestSS
       <p>Xin chào {user.Name},</p>
       <p>Yêu cầu khám của bạn đã được ghi nhận:</p>
       <ul>
+          <li><strong>Số điện thoại:</strong> {user.Phone}</li>
         <li><strong>Dịch vụ:</strong> {service.Name}</li>
+        <li><strong>Giá dịch vụ:</strong> {service.Price:#,##0}</li>
         <li><strong>Phương pháp lấy mẫu:</strong> {sampleMethod.Name}</li>
         <li><strong>Thời gian hẹn:</strong> {examinationRequest.AppointmentTime:yyyy-MM-dd HH:mm} UTC</li>
       </ul>";
@@ -155,7 +157,22 @@ namespace Services.ExRequestSS
                 Subject = "Gửi yêu cầu khám thành công",
                 Body = body
             });
-            return examinationRequest;
+            return new ExaminationResponeDTO
+            {
+                Id = examinationRequest.Id,
+                UserId = examinationRequest.UserId,
+                UserName = user.Name,
+                ServiceId = examinationRequest.ServiceId,
+                ServiceName = service.Name,
+                ServicePrice = service.Price,
+                SampleMethodId = examinationRequest.SampleMethodId,
+                SampleMethodName = sampleMethod.Name,
+                StatusId = examinationRequest.StatusId,
+                AppointmentTime = examinationRequest.AppointmentTime.ToUniversalTime(),
+                CreateAt = examinationRequest.CreateAt.ToUniversalTime(),
+
+                StaffId = examinationRequest.StaffId
+            };
         }
         public async Task<ExaminationRequest?> UpdateAsync(int id, UpdateExRequestDTO updateExRequestDto)
         {
