@@ -20,6 +20,7 @@ namespace WebApplication1.Controllers
         /// get các exrequest theo NotAccept và Accepted.
         /// </summary>
         [HttpGet("status")]
+        [Authorize(Roles = "4")]
         public async Task<IActionResult> GetAll()
         {
             // Nếu muốn override, client có thể truyền ?statuses=Accepted,Processing
