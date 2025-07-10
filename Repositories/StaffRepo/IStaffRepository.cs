@@ -15,5 +15,7 @@ namespace Repositories.StaffRepo
 
         Task<Staff> UpdateAsync(Staff staff);
         Task DeleteAsync(int id);
+
+        Task<IEnumerable<Staff>> GetAllByIdsAsync(IEnumerable<int> ids);
     }
 }

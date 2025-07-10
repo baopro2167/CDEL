@@ -37,7 +37,9 @@ namespace Services.DTO
 
         public int StaffId { get; set; }
 
+        public string StaffName { get; set; } = default!;
+
         // — MỚI THÊM —
-       
+
     }
 }

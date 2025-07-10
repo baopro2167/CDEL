@@ -16,7 +16,12 @@ namespace Repositories.StaffRepo
         {
             _context = Context;
         }
-
+        public async Task<IEnumerable<Staff>> GetAllByIdsAsync(IEnumerable<int> ids)
+        {
+            return await _context.Staffs
+                .Where(s => ids.Contains(s.Id))
+                .ToListAsync();
+        }
         public async Task AddAsync(Staff staff)
         {
             _context.Staffs.Add(staff);

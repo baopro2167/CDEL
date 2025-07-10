@@ -54,6 +54,7 @@ namespace Model
 
         [JsonIgnore]
         public virtual Role? Role { get; set; }
+        public virtual ICollection<Staff> Staff { get; set; } = new List<Staff>();
 
         [JsonIgnore]
         public ICollection<Rating> Ratings { get; set; } = new List<Rating>();

@@ -284,28 +284,34 @@ namespace Services.ExRequestSS
         public async Task<IEnumerable<ExStatusRequestDTO>> GetStatusesWithNamesAsync(IEnumerable<string>? includedStatusIds= null)
         {
             var statuses = (includedStatusIds != null && includedStatusIds.Any())
+                 
        ? includedStatusIds
        : DefaultStatuses;
 
-            return await _exRequestRepository
-                .GetAll()  // IQueryable<ExaminationRequest>
-                .Where(r => statuses.Contains(r.StatusId))
-                .Select(r => new ExStatusRequestDTO
-                {
-                    Id = r.Id,
-                    UserId = r.UserId,
-                    UserName = r.User!.Name,
-                    ServiceId = r.ServiceId,
-                    ServiceName = r.Service.Name,
-                    SampleMethodId = r.SampleMethodId,
-                    SampleMethodName = r.SampleMethod.Name,
-                    StatusId = r.StatusId,
-                    AppointmentTime = r.AppointmentTime,
-                    CreateAt = r.CreateAt,
-                    UpdateAt = r.UpdateAt,
-                    StaffId = r.StaffId
-                })
-                .ToListAsync();
+            var requests = await _exRequestRepository.GetAll()
+          .Where(r => statuses.Contains(r.StatusId))
+          .ToListAsync();
+
+            var staffIds = requests.Select(r => r.StaffId).Distinct();
+            var staffList = await _staffRepo.GetAllByIdsAsync(staffIds);
+            var staffDict = staffList.ToDictionary(s => s.Id, s => s.FullName);
+
+            return requests.Select(r => new ExStatusRequestDTO
+            {
+                Id = r.Id,
+                UserId = r.UserId,
+                UserName = r.User?.Name ?? "Không rõ",
+                ServiceId = r.ServiceId,
+                ServiceName = r.Service?.Name ?? "Không rõ", 
+                SampleMethodId = r.SampleMethodId,
+                SampleMethodName = r.SampleMethod?.Name ?? "Không rõ",
+                StatusId = r.StatusId,
+                AppointmentTime = r.AppointmentTime,
+                CreateAt = r.CreateAt,
+                UpdateAt = r.UpdateAt,
+                StaffId = r.StaffId,
+                StaffName = staffDict.ContainsKey(r.StaffId) ? staffDict[r.StaffId] : "Không rõ"
+            });
 
         }
     }
