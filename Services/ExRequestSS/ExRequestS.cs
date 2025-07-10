@@ -289,6 +289,9 @@ namespace Services.ExRequestSS
        : DefaultStatuses;
 
             var requests = await _exRequestRepository.GetAll()
+                .Include(r => r.User)           // Load User
+        .Include(r => r.Service)        // Load Service
+        .Include(r => r.SampleMethod)   // Load SampleMethod
           .Where(r => statuses.Contains(r.StatusId))
           .ToListAsync();
 
@@ -300,11 +303,11 @@ namespace Services.ExRequestSS
             {
                 Id = r.Id,
                 UserId = r.UserId,
-                UserName = r.User?.Name ?? "Không rõ",
+                UserName = r.User?.Name ,
                 ServiceId = r.ServiceId,
-                ServiceName = r.Service?.Name ?? "Không rõ", 
+                ServiceName = r.Service?.Name ,
                 SampleMethodId = r.SampleMethodId,
-                SampleMethodName = r.SampleMethod?.Name ?? "Không rõ",
+                SampleMethodName = r.SampleMethod?.Name ,
                 StatusId = r.StatusId,
                 AppointmentTime = r.AppointmentTime,
                 CreateAt = r.CreateAt,
