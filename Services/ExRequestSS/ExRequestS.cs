@@ -85,26 +85,64 @@ namespace Services.ExRequestSS
         }
         public async Task<PaginatedList<ExStatusResponeGetDTO>> GetAll(int pageNumber, int pageSize)
         {
-            var requests = _exRequestRepository.GetAll()
-         .Select(x => new ExStatusResponeGetDTO
-         {
-             Id = x.Id,
-             StatusId = x.StatusId,
-             StatusName = GetStatusName(x.StatusId)
-         });
-            return await PaginatedList<ExStatusResponeGetDTO>.CreateAsync(requests, pageNumber, pageSize);
+            var query = _exRequestRepository.GetAll()
+         .AsNoTracking()
+         .OrderByDescending(x => x.Id);
+
+            var totalCount = await query.CountAsync();
+
+            var data = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();  // 🟢 Lấy toàn bộ về RAM trước
+
+            var dtoList = data.Select(x => new ExStatusResponeGetDTO
+            {
+                Id = x.Id,
+                StatusId = x.StatusId,
+                StatusName = GetStatusName(x.StatusId),  // 🟢 An toàn ở C#
+                UserId = x.UserId,
+                ServiceId = x.ServiceId,
+                SampleMethodId = x.SampleMethodId,
+                AppointmentTime = x.AppointmentTime,
+                CreateAt = x.CreateAt,
+                UpdateAt = x.UpdateAt,
+                StaffId = x.StaffId
+            }).ToList();
+            return new PaginatedList<ExStatusResponeGetDTO>(dtoList, totalCount, pageNumber, pageSize);
         }
         public async Task<PaginatedList<ExStatusResponeGetDTO>> GetByAccountId(int Userid, int pageNumber, int pageSize)
         {
-            var requests = _exRequestRepository.GetByAccountId(Userid)
-         .Select(x => new ExStatusResponeGetDTO
-         {
-             Id = x.Id,
-             StatusId = x.StatusId,
-             StatusName = GetStatusName(x.StatusId)
-         });
+            var query = _exRequestRepository.GetByAccountId(Userid)
+        .AsNoTracking()
+        .OrderByDescending(x => x.Id); // Thêm sort nếu cần
 
-            return await PaginatedList<ExStatusResponeGetDTO>.CreateAsync(requests, pageNumber, pageSize);
+            // 2. Tổng số bản ghi (cho phân trang)
+            var totalCount = await query.CountAsync();
+
+            // 3. Lấy dữ liệu theo trang
+            var data = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync(); // ⚠️ Cần ToList trước khi gọi GetStatusName
+
+            // 4. Mapping sang DTO sau khi lấy về
+            var dtoList = data.Select(x => new ExStatusResponeGetDTO
+            {
+                Id = x.Id,
+                StatusId = x.StatusId,
+                StatusName = GetStatusName(x.StatusId),
+                UserId = x.UserId,
+                ServiceId = x.ServiceId,
+                SampleMethodId = x.SampleMethodId,
+                AppointmentTime = x.AppointmentTime,
+                CreateAt = x.CreateAt,
+                UpdateAt = x.UpdateAt,
+                StaffId = x.StaffId
+            }).ToList();
+
+            // 5. Trả về kết quả phân trang
+            return new PaginatedList<ExStatusResponeGetDTO>(dtoList, totalCount, pageNumber, pageSize);
         }
 
 
