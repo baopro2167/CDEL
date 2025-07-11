@@ -13,7 +13,34 @@ namespace WebApplication1.Controllers
         private readonly IStaffService _staffService;
         public StaffController(IStaffService staffService)
             => _staffService = staffService;
+        /// <summary>
+        /// Lấy StaffId dựa trên UserId
+        /// </summary>
+        
+       
+        [HttpGet("staffid/byuserid/{userId}")]
+       
+        public async Task<IActionResult> GetStaffIdByUserId(int userId)
+        {
+            if (userId <= 0)
+            {
+                return BadRequest("UserId phải là số nguyên dương.");
+            }
 
+            try
+            {
+                var staffId = await _staffService.GetStaffIdByUserIdAsync(userId);
+                if (staffId == null)
+                {
+                    return NotFound($"Không tìm thấy StaffId cho UserId {userId}.");
+                }
+                return Ok(staffId);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Đã xảy ra lỗi khi lấy dữ liệu.");
+            }
+        }
         [HttpPost]
         //[Authorize(Roles = "Manager,Admin")]
         public async Task<IActionResult> Create([FromBody] CreateStaffRequestDTO dto)

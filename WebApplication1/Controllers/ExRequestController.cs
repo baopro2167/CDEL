@@ -20,7 +20,7 @@ namespace WebApplication1.Controllers
         /// get các exrequest theo NotAccept và Accepted.
         /// </summary>
         [HttpGet("status")]
-        [Authorize(Roles = "4")]
+        //[Authorize(Roles = "4")]
         public async Task<IActionResult> GetAll()
         {
             // Nếu muốn override, client có thể truyền ?statuses=Accepted,Processing
@@ -58,7 +58,35 @@ namespace WebApplication1.Controllers
                 return BadRequest(argEx.Message);
             }
         }
+        /// <summary>
+        /// Lấy tất cả các yêu cầu kiểm tra được gán cho một nhân viên theo StaffId
+        /// </summary>
+        /// <param name="staffId">ID của nhân viên</param>
+        /// <returns>Danh sách các yêu cầu kiểm tra</returns>
+        
+        [HttpGet("staff/{staffId}")]
+     
+        public async Task<IActionResult> GetRequestsByStaffId(int staffId)
+        {
+            if (staffId <= 0)
+            {
+                return BadRequest("StaffId phải là số nguyên dương.");
+            }
 
+            try
+            {
+                var requests = await _exRequestService.GetRequestsByStaffIdAsync(staffId);
+                if (!requests.Any())
+                {
+                    return NotFound($"Không tìm thấy yêu cầu nào cho StaffId {staffId}.");
+                }
+                return Ok(requests);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Đã xảy ra lỗi khi lấy dữ liệu.");
+            }
+        }
 
 
 

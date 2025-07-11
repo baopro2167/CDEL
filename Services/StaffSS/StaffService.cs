@@ -19,7 +19,10 @@ namespace Services.StaffSS
             _staffRepository = staffRepository;
             _userRepository = userRepository;
         }
-
+        public async Task<int?> GetStaffIdByUserIdAsync(int userId)
+        {
+            return await _staffRepository.GetStaffIdByUserIdAsync(userId);
+        }
         public async Task<CreateStaffResponseDto> CreateAsync(CreateStaffRequestDTO dto)
         {
             if (string.IsNullOrWhiteSpace(dto.FullName))

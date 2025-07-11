@@ -317,6 +317,36 @@ namespace Services.ExRequestSS
             });
 
         }
+        public async Task<IEnumerable<ExStatusRequestDTO>> GetRequestsByStaffIdAsync(int staffId)
+        {
+            var requests = await _exRequestRepository.GetAll()
+                .Include(r => r.User)
+                .Include(r => r.Service)
+                .Include(r => r.SampleMethod)
+                .Where(r => r.StaffId == staffId)
+                .ToListAsync();
+
+            var staffIds = requests.Select(r => r.StaffId).Distinct();
+            var staffList = await _staffRepo.GetAllByIdsAsync(staffIds);
+            var staffDict = staffList.ToDictionary(s => s.Id, s => s.FullName);
+
+            return requests.Select(r => new ExStatusRequestDTO
+            {
+                Id = r.Id,
+                UserId = r.UserId,
+                UserName = r.User?.Name ?? "Không rõ",
+                ServiceId = r.ServiceId,
+                ServiceName = r.Service?.Name ?? "Không rõ",
+                SampleMethodId = r.SampleMethodId,
+                SampleMethodName = r.SampleMethod?.Name ?? "Không rõ",
+                StatusId = r.StatusId,
+                AppointmentTime = r.AppointmentTime,
+                CreateAt = r.CreateAt,
+                UpdateAt = r.UpdateAt,
+                StaffId = r.StaffId,
+                StaffName = staffDict.ContainsKey(r.StaffId) ? staffDict[r.StaffId] : "Không rõ"
+            });
+        }
     }
     }
 

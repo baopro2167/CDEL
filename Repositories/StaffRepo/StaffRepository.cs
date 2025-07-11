@@ -22,6 +22,14 @@ namespace Repositories.StaffRepo
                 .Where(s => ids.Contains(s.Id))
                 .ToListAsync();
         }
+        public async Task<int?> GetStaffIdByUserIdAsync(int userId)
+        {
+            var staff = await _context.Staffs
+                .Where(s => s.UserId == userId)
+                .Select(s => s.Id)
+                .FirstOrDefaultAsync();
+            return staff > 0 ? staff : null;
+        }
         public async Task AddAsync(Staff staff)
         {
             _context.Staffs.Add(staff);

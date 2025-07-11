@@ -14,5 +14,7 @@ namespace Services.StaffSS
         Task<CreateStaffResponseDto?> GetByIdAsync(int id);
         Task<Staff?> UpdateStaffAsync(int id, UpdateStaffDTO updateStaffDto);
         Task DeleteStaffAsync(int id);
+
+        Task<int?> GetStaffIdByUserIdAsync(int userId);
     }
 }

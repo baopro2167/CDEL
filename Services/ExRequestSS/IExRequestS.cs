@@ -26,5 +26,7 @@ namespace Services.ExRequestSS
         Task<ExaminationRequestStatusResponseDTO> UpdateStatusAsync(int requestId, UpdateExaminationRequestStatusDTO dto);
 
         Task<IEnumerable<ExStatusRequestDTO>> GetStatusesWithNamesAsync(IEnumerable<string>? includedStatusIds = null);
+
+         Task<IEnumerable<ExStatusRequestDTO>> GetRequestsByStaffIdAsync(int staffId);
     }
 }

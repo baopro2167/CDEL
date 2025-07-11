@@ -56,10 +56,10 @@ namespace WebApplication1.Controllers
             return Ok(sservice);
         }
         /// <summary>
-        /// Create serviceBB for admin , manager
+        /// Create serviceBB for STAFF
         /// </summary>
 
-        [Authorize(Roles = "1,4")]
+        [Authorize(Roles = "3")]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] AddServiceBDTO addServiceBDTO)
         {
