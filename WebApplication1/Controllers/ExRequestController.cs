@@ -15,7 +15,40 @@ namespace WebApplication1.Controllers
         {
             _exRequestService = exRequestService;
         }
-      
+        /// <summary>
+        /// Cập nhật một phần thông tin yêu cầu kiểm tra (ServiceId, SampleMethodId, AppointmentTime)
+        /// </summary>
+
+        [HttpPatch("partial/{id}")]
+        public async Task<IActionResult> UpdatePartial(int id, [FromBody] UpdateExRequestPartialDTO dto)
+        {
+            if (id <= 0)
+            {
+                return BadRequest("ID phải là số nguyên dương.");
+            }
+
+            try
+            {
+                var updatedRequest = await _exRequestService.UpdatePartialAsync(id, dto);
+                if (updatedRequest == null)
+                {
+                    return NotFound($"Không tìm thấy yêu cầu với ID {id}.");
+                }
+                return Ok(updatedRequest);
+            }
+            catch (ArgumentNullException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Đã xảy ra lỗi khi cập nhật dữ liệu.");
+            }
+        }
+
+
+
+
         /// <summary>
         /// get các exrequest theo NotAccept và Accepted.
         /// </summary>

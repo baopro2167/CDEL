@@ -356,6 +356,43 @@ namespace Services.ExRequestSS
                 StaffName = staffDict.ContainsKey(r.StaffId) ? staffDict[r.StaffId] : "Không rõ"
             });
         }
+        public async Task<ExaminationRequest?> UpdatePartialAsync(int id, UpdateExRequestPartialDTO dto)
+        {
+            if (dto == null)
+            {
+                throw new ArgumentNullException(nameof(dto), "Examination request data is required.");
+            }
+
+            var examinationRequest = await _exRequestRepository.GetByIdAsync(id);
+            if (examinationRequest == null)
+            {
+                return null;
+            }
+
+            // Cập nhật các trường nếu có giá trị
+            if (dto.ServiceId.HasValue)
+                examinationRequest.ServiceId = dto.ServiceId.Value;
+            if (dto.SampleMethodId.HasValue)
+                examinationRequest.SampleMethodId = dto.SampleMethodId.Value;
+            if (dto.AppointmentTime.HasValue)
+                examinationRequest.AppointmentTime = dto.AppointmentTime.Value.Kind == DateTimeKind.Unspecified
+                    ? DateTime.SpecifyKind(dto.AppointmentTime.Value, DateTimeKind.Utc)
+                    : dto.AppointmentTime.Value.ToUniversalTime();
+
+            examinationRequest.UpdateAt = DateTime.UtcNow;
+            await _exRequestRepository.UpdateAsync(examinationRequest);
+
+            return examinationRequest;
+        }
+
+
+
+
+
+
+
+
+
         private string GetStatusName(string statusId)
         {
             return statusId switch
