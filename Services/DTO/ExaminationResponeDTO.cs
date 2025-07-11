@@ -17,6 +17,7 @@ namespace Services.DTO
         public int SampleMethodId { get; set; }
         public string SampleMethodName { get; set; }
         public string StatusId { get; set; }
+        public string StatusName { get; set; }
         public DateTime AppointmentTime { get; set; }
         public DateTime CreateAt { get; set; }
       

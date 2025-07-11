@@ -10,7 +10,7 @@ namespace Services.DTO
     {
         public int RequestId { get; set; }
         public string Status { get; set; } = default!;
-
+        public string StatusName { get; set; }
         public DateTime UpdatedAt { get; set; }
 
     }

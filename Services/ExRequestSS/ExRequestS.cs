@@ -26,7 +26,7 @@ namespace Services.ExRequestSS
         private readonly IUserRepository _userRepository;
         private readonly ISampleMethodRepository _sampleMethodRepository;
 
-        private static readonly string[] DefaultStatuses = new[] { "Not Accept", "Accepted" };
+        private static readonly string[] DefaultStatuses = new[] { "1", "2" };
         public ExRequestS(IExRequestRepository exRequestRepository, IServiceRepository serviceRepository
             , IStaffRepository staffRepository, IUserRepository userRepository , ISampleMethodRepository sampleMethodRepository
             , IEmailService emailService)
@@ -49,11 +49,12 @@ namespace Services.ExRequestSS
                 throw new KeyNotFoundException($"Request with ID {requestId} not found.");
 
             // 2. Kiểm tra giá trị status hợp lệ
-            var allowed = new[] { "SampleCollected", "Processing", "Completed" };
+            var allowed = new[] { "3", "4", "5" };
             if (!allowed.Contains(dto.Status))
                 throw new InvalidOperationException($"Status phải là một trong: {string.Join(", ", allowed)}.");
 
             // 3. (Tuỳ chọn) kiểm tra thứ tự chuyển trạng thái nếu cần
+            string statusName = GetStatusName(dto.Status);
 
             // 4. Cập nhật
             req.StatusId = dto.Status;
@@ -65,6 +66,7 @@ namespace Services.ExRequestSS
             {
                 RequestId = req.Id,
                 Status = req.StatusId,
+                StatusName = statusName,
                 UpdatedAt = req.UpdateAt
             };
         }
@@ -129,7 +131,7 @@ namespace Services.ExRequestSS
                 ServiceId = addExRequestDto.ServiceId,
                 PriorityId = addExRequestDto.PriorityId,
                 SampleMethodId = addExRequestDto.SampleMethodId,
-                StatusId = "Not Accept",
+                StatusId = "1",
                 AppointmentTime = addExRequestDto.AppointmentTime.Kind == DateTimeKind.Unspecified
          ? DateTime.SpecifyKind(addExRequestDto.AppointmentTime, DateTimeKind.Utc)
          : addExRequestDto.AppointmentTime.ToUniversalTime(),
@@ -158,6 +160,7 @@ namespace Services.ExRequestSS
                 Subject = "Gửi yêu cầu khám thành công",
                 Body = body
             });
+            string statusName = GetStatusName(examinationRequest.StatusId);
             return new ExaminationResponeDTO
             {
                 Id = examinationRequest.Id,
@@ -169,6 +172,7 @@ namespace Services.ExRequestSS
                 SampleMethodId = examinationRequest.SampleMethodId,
                 SampleMethodName = sampleMethod.Name,
                 StatusId = examinationRequest.StatusId,
+                StatusName = statusName,
                 AppointmentTime = examinationRequest.AppointmentTime.ToUniversalTime(),
                 CreateAt = examinationRequest.CreateAt.ToUniversalTime(),
 
@@ -217,15 +221,17 @@ namespace Services.ExRequestSS
                 throw new KeyNotFoundException($"Request with ID {requestId} not found.");
 
             // 2. Cập nhật trạng thái (giả sử statusId = 2 là Accepted)
-            req.StatusId = "Accepted";
+            req.StatusId = "2";
             req.UpdateAt = DateTime.UtcNow;
             await _exRequestRepository.UpdateAsync(req);
+            string statusName = GetStatusName(req.StatusId);
 
             // 3. Trả về DTO
             return new ExRequestResponseDTO
             {
                 RequestId = req.Id,
                 Status = req.StatusId,
+                StatusName = statusName,
                 UpdatedAt = req.UpdateAt
             };
         }
@@ -309,6 +315,7 @@ namespace Services.ExRequestSS
                 SampleMethodId = r.SampleMethodId,
                 SampleMethodName = r.SampleMethod?.Name ,
                 StatusId = r.StatusId,
+                StatusName = GetStatusName(r.StatusId),
                 AppointmentTime = r.AppointmentTime,
                 CreateAt = r.CreateAt,
                 UpdateAt = r.UpdateAt,
@@ -340,12 +347,26 @@ namespace Services.ExRequestSS
                 SampleMethodId = r.SampleMethodId,
                 SampleMethodName = r.SampleMethod?.Name ?? "Không rõ",
                 StatusId = r.StatusId,
+
+                StatusName = GetStatusName(r.StatusId ?? "Unknown"),
                 AppointmentTime = r.AppointmentTime,
                 CreateAt = r.CreateAt,
                 UpdateAt = r.UpdateAt,
                 StaffId = r.StaffId,
                 StaffName = staffDict.ContainsKey(r.StaffId) ? staffDict[r.StaffId] : "Không rõ"
             });
+        }
+        private string GetStatusName(string statusId)
+        {
+            return statusId switch
+            {
+                "1" => "Not Accept",
+                "2" => "Accepted",
+                "3" => "SampleCollected",
+                "4" => "Processing",
+                "5" => "Completed",
+                _ => "Unknown" // Trường hợp không xác định
+            };
         }
     }
     }
