@@ -11,6 +11,7 @@ namespace Services.DTO
         public int RequestId { get; set; }
         public string? ServiceName { get; set; }
         public String StatusId { get; set; }
-       
+        public string? StatusName { get; set; }
+
     }
 }

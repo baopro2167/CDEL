@@ -13,8 +13,8 @@ namespace Services.ExRequestSS
     {
         Task<IEnumerable<ExaminationRequest>> GetAllAsync(IEnumerable<string> includedStatusIds);
         Task<ExaminationRequest?> GetByIdAsync(int id);
-        Task<PaginatedList<ExaminationRequest>> GetAll(int pageNumber, int pageSize);
-        Task<PaginatedList<ExaminationRequest>> GetByAccountId(int Userid, int pageNumber, int pageSize);
+        Task<PaginatedList<ExStatusResponeGetDTO>> GetAll(int pageNumber, int pageSize);
+        Task<PaginatedList<ExStatusResponeGetDTO>> GetByAccountId(int Userid, int pageNumber, int pageSize);
         Task<IEnumerable<ExRequestCustomerDTO>> GetExaminationRequests(int userId, int pageNumber, int pageSize);
         Task<ExaminationResponeDTO> AddAsync(AddExRequestDTO addExRequestDto);
         Task<ExaminationRequest?> UpdateAsync(int id, UpdateExRequestDTO updateExRequestDto);

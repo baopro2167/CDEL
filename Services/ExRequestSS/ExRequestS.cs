@@ -83,15 +83,28 @@ namespace Services.ExRequestSS
         {
             return await _exRequestRepository.GetByIdAsync(id);
         }
-        public async Task<PaginatedList<ExaminationRequest>> GetAll(int pageNumber, int pageSize)
+        public async Task<PaginatedList<ExStatusResponeGetDTO>> GetAll(int pageNumber, int pageSize)
         {
-            IQueryable<ExaminationRequest> requests = _exRequestRepository.GetAll().AsQueryable();
-            return await PaginatedList<ExaminationRequest>.CreateAsync(requests, pageNumber, pageSize);
+            var requests = _exRequestRepository.GetAll()
+         .Select(x => new ExStatusResponeGetDTO
+         {
+             Id = x.Id,
+             StatusId = x.StatusId,
+             StatusName = GetStatusName(x.StatusId)
+         });
+            return await PaginatedList<ExStatusResponeGetDTO>.CreateAsync(requests, pageNumber, pageSize);
         }
-        public async Task<PaginatedList<ExaminationRequest>> GetByAccountId(int Userid, int pageNumber, int pageSize)
+        public async Task<PaginatedList<ExStatusResponeGetDTO>> GetByAccountId(int Userid, int pageNumber, int pageSize)
         {
-            IQueryable<ExaminationRequest> requests = _exRequestRepository.GetByAccountId(Userid).AsQueryable();
-            return await PaginatedList<ExaminationRequest>.CreateAsync(requests, pageNumber, pageSize);
+            var requests = _exRequestRepository.GetByAccountId(Userid)
+         .Select(x => new ExStatusResponeGetDTO
+         {
+             Id = x.Id,
+             StatusId = x.StatusId,
+             StatusName = GetStatusName(x.StatusId)
+         });
+
+            return await PaginatedList<ExStatusResponeGetDTO>.CreateAsync(requests, pageNumber, pageSize);
         }
 
 
@@ -102,15 +115,17 @@ namespace Services.ExRequestSS
 
             // Phân trang các yêu cầu kiểm tra
             var paginatedRequests = await PaginatedList<ExaminationRequest>.CreateAsync(requests, pageNumber, pageSize);
+          
 
             // Chuyển đổi dữ liệu sang ExaminationRequestDTO
             var examinationRequestDTOs = paginatedRequests.Items.Select(request => new ExRequestCustomerDTO
             {
                 RequestId = request.Id,
                 ServiceName = _serviceRepository.GetByIdAsync(request.ServiceId).Result.Name,  // Lấy tên dịch vụ từ Service repository
-                StatusId = request.StatusId,  
+                StatusId = request.StatusId,
+                StatusName = GetStatusName(request.StatusId ?? "Unknown"),
                 // Trả về StatusId kiểu Boolean
-               
+
             });
 
 
@@ -393,7 +408,7 @@ namespace Services.ExRequestSS
 
 
 
-        private string GetStatusName(string statusId)
+        private static  string GetStatusName(string statusId)
         {
             return statusId switch
             {
