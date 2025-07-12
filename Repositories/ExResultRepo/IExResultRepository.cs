@@ -1,4 +1,5 @@
 ﻿using Model;
+using Repositories.Pagging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,5 +16,6 @@ namespace Repositories.ExResultRepo
         Task<ExaminationResult> UpdateAsync(ExaminationResult result);
         Task DeleteAsync(int id);
         IQueryable<ExaminationResult> GetAll();
+        Task<PaginatedList<ExaminationResult>> GetByUserIdAsync(int userId, int pageNumber, int pageSize);
     }
 }

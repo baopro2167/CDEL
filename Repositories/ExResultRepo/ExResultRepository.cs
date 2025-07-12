@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Model;
+using Repositories.Pagging;
 namespace Repositories.ExResultRepo
 {
     public class ExResultRepository : IExResultRepository
@@ -15,6 +16,16 @@ namespace Repositories.ExResultRepo
         {
             _context = context;
         }
+        public async Task<PaginatedList<ExaminationResult>> GetByUserIdAsync(int userId, int pageNumber, int pageSize)
+        {
+            var query = _context.ExaminationResults
+                .Where(er => _context.ExaminationRequests
+                    .Any(req => req.Id == er.RequestId && req.UserId == userId))
+                .AsQueryable();
+
+            return await PaginatedList<ExaminationResult>.CreateAsync(query, pageNumber, pageSize);
+        }
+
 
         public async Task<ExaminationResult> GetByIdAsync(int id)
         {

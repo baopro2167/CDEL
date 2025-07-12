@@ -17,6 +17,8 @@ namespace Services.ExResultSS
         Task<ExaminationResult?> UpdateAsync(int id, UpdateExResultDTO updateExResultDto);
         Task DeleteAsync(int id);
         Task<PaginatedList<ExaminationResult>> GetAll(int pageNumber, int pageSize);
+        Task<PaginatedList<ExaminationResult>> GetByUserIdAsync(int userId, int pageNumber, int pageSize);
+
 
     }
 }

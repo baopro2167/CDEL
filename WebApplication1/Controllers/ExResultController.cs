@@ -15,6 +15,28 @@ namespace WebApplication1.Controllers
             _exResultService = exResultService;
         }
         /// <summary>
+        /// Lấy danh sách kết quả xét nghiệm theo UserId có phân trang
+        /// </summary>
+        /// <param name="userId">Id của User</param>
+        /// <param name="pageNumber">Trang hiện tại (default = 1)</param>
+        /// <param name="pageSize">Số phần tử mỗi trang (default = 10)</param>
+        /// <returns>Danh sách kết quả xét nghiệm</returns>
+        [HttpGet("by-user/{userId}")]
+        public async Task<IActionResult> GetByUserId(
+            int userId,
+            int pageNumber = 1,
+            int pageSize = 10)
+        {
+            var results = await _exResultService.GetByUserIdAsync(userId, pageNumber, pageSize);
+            return Ok(results);
+        }
+
+
+
+
+
+
+        /// <summary>
         /// Lấy danh sách exResult theo id
         /// </summary>
         [HttpGet("{id}")]

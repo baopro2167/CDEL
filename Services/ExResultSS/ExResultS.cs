@@ -7,6 +7,7 @@ using Repositories.ExResultRepo;
 using Model;
 using Services.DTO;
 using Repositories.Pagging;
+using Microsoft.EntityFrameworkCore;
 namespace Services.ExResultSS
 {
     public class ExResultS : IExResultS
@@ -86,6 +87,10 @@ namespace Services.ExResultSS
                 throw new KeyNotFoundException($"ExResult with ID {id} not found.");
             }
             await _exResultRepository.DeleteAsync(id);
+        }
+        public async Task<PaginatedList<ExaminationResult>> GetByUserIdAsync(int userId, int pageNumber, int pageSize)
+        {
+            return await _exResultRepository.GetByUserIdAsync(userId, pageNumber, pageSize);
         }
     }
 }
