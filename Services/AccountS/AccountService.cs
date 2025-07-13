@@ -110,6 +110,7 @@ namespace Services.AccountS
             await _userRepository.UpdateAsync(user);
 
             // 3) Gửi email cho user
+            var frontendUrl = _config["AppSettings:FrontendUrl"];
             var resetLink = $"{_config["AppSettings:FrontendUrl"]}/reset-password?email={Uri.EscapeDataString(user.Email)}&token={Uri.EscapeDataString(token)}";
             var html = $@"
             <p>Chào {user.Name},</p>
