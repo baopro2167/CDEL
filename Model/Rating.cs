@@ -32,7 +32,7 @@ namespace Model
         [Required]
         public DateTime CreateAt { get; set; } = DateTime.UtcNow;
 
-        // Navigation property
+        [JsonIgnore]
         public virtual User? User { get; set; }
         [JsonIgnore]
 

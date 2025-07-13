@@ -36,7 +36,7 @@ namespace Repositories.KitDeliveryRepo
        
         public IQueryable<KitDelivery> GetAll()
         {
-            return _context.KitDeliverys.AsQueryable();
+            return _context.KitDeliveries.AsQueryable();
         }
 
         public async Task<KitDelivery> GetByIdAsync(int id)

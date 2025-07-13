@@ -27,7 +27,8 @@ using Repositories.BlogPostRepo;
 using Repositories.RoleRepo;
 using Repositories.StaffRepo;
 using Services.StaffSS;
-
+using Repositories.RatingRepo;
+using Services.RatingSS;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -67,6 +68,9 @@ builder.Services.AddScoped<IServiceBB, ServiceBB>();
 
 builder.Services.AddScoped<IExRequestRepository, ExRequestRepository>();
 builder.Services.AddScoped<IExRequestS, ExRequestS>();
+
+builder.Services.AddScoped<IRatingRepository, RatingRepository>();
+builder.Services.AddScoped<IRatingService, RatingService>();
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAccountService, AccountService>();

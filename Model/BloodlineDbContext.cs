@@ -25,7 +25,7 @@ namespace Model
         public DbSet<KitDelivery> KitDeliveries { get; set; }
         public DbSet<ExaminationRequest> ExaminationRequests { get; set; }
         public DbSet<Rating> Ratings { get; set; }
-        public DbSet<KitDelivery> KitDeliverys { get; set; }
+     
         public DbSet<ExaminationResult> ExaminationResults { get; set; }
         
         public DbSet<Service> ServiceBs { get; set; }
