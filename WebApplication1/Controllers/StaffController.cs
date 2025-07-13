@@ -41,20 +41,20 @@ namespace WebApplication1.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "Đã xảy ra lỗi khi lấy dữ liệu.");
             }
         }
-        [HttpPost]
-        //[Authorize(Roles = "Manager,Admin")]
-        public async Task<IActionResult> Create([FromBody] CreateStaffRequestDTO dto)
-        {
-            try
-            {
-                var result = await _staffService.CreateAsync(dto);
-                return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-        }
+        //[HttpPost]
+        ////[Authorize(Roles = "Manager,Admin")]
+        //public async Task<IActionResult> Create([FromBody] CreateStaffRequestDTO dto)
+        //{
+        //    try
+        //    {
+        //        var result = await _staffService.CreateAsync(dto);
+        //        return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+        //    }
+        //    catch (ArgumentException ex)
+        //    {
+        //        return BadRequest(new { message = ex.Message });
+        //    }
+        //}
 
         [HttpGet("{id}")]
         //[Authorize(Roles = "Manager,Admin,Staff")]

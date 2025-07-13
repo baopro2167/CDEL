@@ -42,7 +42,7 @@ namespace Services.StaffSS
             return new CreateStaffResponseDto
             {
                 Id = staff.Id, //
-                FullName = staff.FullName,
+                Bio = staff.FullName,
                 Email = staff.Email,
                 UserId = staff.UserId // Assuming UserId is part of CreateStaffResponseDto
 
@@ -56,7 +56,7 @@ namespace Services.StaffSS
             return new CreateStaffResponseDto
             {
                Id = staff.Id,
-                FullName = staff.FullName,
+                Bio = staff.FullName,
                 Email = staff.Email,
                 UserId = staff.UserId // Assuming UserId is part of CreateStaffResponseDto
 

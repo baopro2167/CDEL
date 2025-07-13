@@ -19,6 +19,7 @@ using Repositories.RoleRepo;
 using Google.Apis.Auth;
 using Microsoft.Extensions.Logging;
 using Services.EmailS;
+using Repositories.StaffRepo;
 namespace Services.AccountS
 {
     public class AccountService : IAccountService
@@ -30,14 +31,16 @@ namespace Services.AccountS
         private readonly string _googleClientId;
         private readonly ILogger<AccountService> _logger;
         private readonly IEmailService _emailService;
+        private readonly IStaffRepository _staffRepository;
         public AccountService(ILogger<AccountService> logger,IUserRepository userRepository, 
             IPasswordHasher<User> hasher, IConfiguration configuration, IRoleRepository roleRepository,
-            IEmailService emailService)
+            IEmailService emailService, IStaffRepository staffRepository)
         {
             _userRepository = userRepository;
             _hasher = hasher;
             _config = configuration;
             _roleRepository = roleRepository;
+            _staffRepository = staffRepository;
             _emailService = emailService;
             _logger = logger;
             _googleClientId = _config["GoogleAuth:ClientId"]!;
@@ -304,6 +307,17 @@ namespace Services.AccountS
            
             user.Password = _hasher.HashPassword(user, registerAdmin.Password);
             await _userRepository.Register(user);
+
+            if (registerAdmin.RoleId == 3)
+            {
+                var staff = new Staff
+                {
+                    FullName = user.Name, // Lấy FullName từ user (nếu có Name trong user)
+                    Email = user.Email,
+                    UserId = user.Id
+                };
+                await _staffRepository.AddAsync(staff);
+            }
 
             return user;
         }
