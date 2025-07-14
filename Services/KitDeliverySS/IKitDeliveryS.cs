@@ -22,6 +22,7 @@ namespace Services.KitDeliverySS
         Task<UpdateKitDeliverySSResponseDTO> AcknowledgeAsync(int kitDeliveryId, UpdateKitDeliverySSDTO dto);
 
         //Task<KitDeliveryResponseDTO> CreateKitDeliveryAsync(CreateKitDeliveryDTO dto);
+        Task<KitDelivery?> GetByRequestIdAsync(int requestId);
 
     }
 }

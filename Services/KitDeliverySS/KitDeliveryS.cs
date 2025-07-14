@@ -9,6 +9,7 @@ using Repositories.KitDeliveryRepo;
 using Model;
 using Repositories.ExRequestRepo;
 using Repositories.StaffRepo;
+using Microsoft.EntityFrameworkCore;
 
 namespace Services.KitDeliverySS
 {
@@ -169,6 +170,12 @@ namespace Services.KitDeliverySS
                 Status = delivery.StatusId,
                 ReceivedAt = delivery.ReceivedAt!.Value
             };
+        }
+        public async Task<KitDelivery?> GetByRequestIdAsync(int requestId)
+        {
+            return await _kitDeliveryRepository.GetAll()
+                .Where(d => d.RequestId == requestId)
+                .FirstOrDefaultAsync();
         }
 
 

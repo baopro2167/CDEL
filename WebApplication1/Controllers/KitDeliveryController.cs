@@ -16,6 +16,16 @@ namespace WebApplication1.Controllers
         }
 
         /// <summary>
+        /// Lấy  Kitdeliveries theo request id
+        /// </summary>
+        [HttpGet("by-request/{requestId}")]
+        public async Task<IActionResult> GetByRequestId(int requestId)
+        {
+            var delivery = await _kitDeliveryService.GetByRequestIdAsync(requestId);
+            if (delivery == null) return NotFound();
+            return Ok(delivery);
+        }
+        /// <summary>
         /// User xác nhận đã nhận hoặc đã gửi lại (“Sent”→“Received”/“Returned”)
         /// </summary>
         [HttpPatch("{kitDeliveryId}/acknowledge")]
