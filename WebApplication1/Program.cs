@@ -50,7 +50,7 @@ builder.Services.AddCors(options =>
                  .AllowAnyHeader(); 
     });
 });
-
+builder.Services.AddHttpContextAccessor();
 
 // Add services to the container.
 builder.Services.AddScoped<IKitService, KitService>();

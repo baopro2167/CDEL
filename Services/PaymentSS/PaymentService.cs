@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Model;
+using Org.BouncyCastle.Asn1.Pkcs;
 using Repositories.PaymentRepo;
 using System;
 using System.Collections.Generic;
@@ -18,13 +19,16 @@ namespace Services.PaymentSS
         private readonly string _vnpTmnCode;
         private readonly string _vnpHashSecret;
         private readonly string _vnpReturnUrl;
-        public PaymentService(IPaymentRepository paymentRepository, IConfiguration configuration)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public PaymentService(IPaymentRepository paymentRepository, IConfiguration configuration
+              ,IHttpContextAccessor httpContextAccessor)
         {
             _paymentRepository = paymentRepository;
             _vnpayUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"; // Sử dụng sandbox cho test
             _vnpTmnCode = configuration["VNPaySettings:VnpTmnCode"];
             _vnpHashSecret = configuration["VNPaySettings:VnpHashSecret"];
             _vnpReturnUrl = configuration["VNPaySettings:VnpReturnUrl"];
+            _httpContextAccessor = httpContextAccessor;
         }
         public async Task<string> CreatePaymentUrl(int userId, int requestId, decimal amount, string orderInfo)
         {
@@ -44,7 +48,7 @@ namespace Services.PaymentSS
             var nowVN = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vnTimeZone);
 
             string vnp_TxnRef = payment.Id.ToString(); // Sử dụng Id làm transaction reference
-            string vnp_IpAddr = "127.0.0.1"; // Cần lấy IP thực tế từ request
+            string vnp_IpAddr = _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString() ?? "127.0.0.1";
             string vnp_CreateDate = nowVN.ToString("yyyyMMddHHmmss");
 
             var vnp_Params = new Dictionary<string, string>
@@ -71,11 +75,13 @@ namespace Services.PaymentSS
             var hashData = string.Join("&", fieldNames.Select(key => $"{key}={vnp_Params[key]}"));
             Console.WriteLine("🔍 VNPay rawData for hash:");
             Console.WriteLine(hashData);
+           
 
             var vnp_SecureHash = HmacSHA256(_vnpHashSecret, hashData);
             vnp_Params.Add("vnp_SecureHashType", "SHA256");
             vnp_Params.Add("vnp_SecureHash", vnp_SecureHash);
-
+           
+            Console.WriteLine("🔑 secureHash: " + vnp_SecureHash);
             var queryString = string.Join("&", vnp_Params.Select(kvp => $"{kvp.Key}={Uri.EscapeDataString(kvp.Value)}"));
             return $"{_vnpayUrl}?{queryString}";
         }
@@ -124,7 +130,7 @@ namespace Services.PaymentSS
         { "vnp_Version", "2.1.0" },
         { "vnp_Command", "pay" },
         { "vnp_TmnCode", _vnpTmnCode },
-        { "vnp_Amount", ((int)(payment.Amount * 100)).ToString() },
+        { "vnp_Amount", ((long)(payment.Amount * 100)).ToString() },
         { "vnp_CurrCode", "VND" },
         { "vnp_TxnRef", vnp_TxnRef },
         { "vnp_OrderInfo", $"Thanh toán lại đơn #{payment.Id}" },
