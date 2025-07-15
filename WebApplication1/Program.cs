@@ -29,6 +29,9 @@ using Repositories.StaffRepo;
 using Services.StaffSS;
 using Repositories.RatingRepo;
 using Services.RatingSS;
+using Repositories.PaymentRepo;
+using Services.PaymentSS;
+
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -78,6 +81,8 @@ builder.Services.AddScoped<IStaffRepository, StaffRepository>();
 builder.Services.AddScoped<IStaffService, StaffService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
+builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
 
 
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();

@@ -62,5 +62,7 @@ namespace Model
         public ICollection<BlogPost> BlogPosts { get; set; } = new List<BlogPost>();
         [JsonIgnore]
         public ICollection<ExaminationRequest> ExaminationRequests { get; set; }
+        [JsonIgnore] 
+        public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
     }
 }

@@ -61,6 +61,8 @@ namespace Model
         public virtual ICollection<ExaminationResult> ExaminationResults { get; set; } = new List<ExaminationResult>();
         [JsonIgnore]
         public virtual ICollection<KitDelivery> KitDeliveries { get; set; } = new List<KitDelivery>();
+        [JsonIgnore]
+        public virtual Payment? Payment { get; set; } 
     }
 }
 

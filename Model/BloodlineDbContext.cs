@@ -33,6 +33,7 @@ namespace Model
         public DbSet<SampleMethod> SampleMethods { get; set; }
         public DbSet<ServiceSampleMethod> ServiceSampleMethods { get; set; }
         public DbSet<Staff> Staffs { get; set; }
+        public DbSet<Payment> Payments { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -166,6 +167,18 @@ namespace Model
                 .HasOne(ssm => ssm.SampleMethod)
                 .WithMany(sm => sm.ServiceSampleMethods)
                 .HasForeignKey(ssm => ssm.SampleMethodId);
+            // Thêm mối quan hệ cho Payments
+            modelBuilder.Entity<Payment>()
+                .HasOne(p => p.User)
+                .WithMany(u => u.Payments)
+                .HasForeignKey(p => p.UserId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<Payment>()
+                .HasOne(p => p.Request)
+                .WithOne(er => er.Payment)
+                .HasForeignKey<Payment>(p => p.RequestId)
+                .OnDelete(DeleteBehavior.NoAction);
         }
     }
 
