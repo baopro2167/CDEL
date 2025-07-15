@@ -48,7 +48,8 @@ namespace Services.PaymentSS
             var nowVN = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vnTimeZone);
 
             string vnp_TxnRef = payment.Id.ToString(); // Sử dụng Id làm transaction reference
-            string vnp_IpAddr = _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString() ?? "127.0.0.1";
+            string vnp_IpAddr = _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.MapToIPv4().ToString() ?? "127.0.0.1";
+
             string vnp_CreateDate = nowVN.ToString("yyyyMMddHHmmss");
 
             var vnp_Params = new Dictionary<string, string>
@@ -73,15 +74,15 @@ namespace Services.PaymentSS
             var fieldNames = vnp_Params.Keys.ToList();
             fieldNames.Sort();
             var hashData = string.Join("&", fieldNames.Select(key => $"{key}={vnp_Params[key]}"));
-            Console.WriteLine("🔍 VNPay rawData for hash:");
-            Console.WriteLine(hashData);
-           
+            Console.WriteLine("🟡 [DEBUG] SecretKey: " + _vnpHashSecret);
+            Console.WriteLine("🟡 [DEBUG] RawData: " + hashData);
+
 
             var vnp_SecureHash = HmacSHA256(_vnpHashSecret, hashData);
             vnp_Params.Add("vnp_SecureHashType", "SHA256");
             vnp_Params.Add("vnp_SecureHash", vnp_SecureHash);
-           
-            Console.WriteLine("🔑 secureHash: " + vnp_SecureHash);
+
+            Console.WriteLine("🟢 [DEBUG] My SecureHash: " + vnp_SecureHash);
             var queryString = string.Join("&", vnp_Params.Select(kvp => $"{kvp.Key}={Uri.EscapeDataString(kvp.Value)}"));
             return $"{_vnpayUrl}?{queryString}";
         }
