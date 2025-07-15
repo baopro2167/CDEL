@@ -40,10 +40,12 @@ namespace Services.PaymentSS
             };
 
             await _paymentRepository.CreateAsync(payment);
+            var vnTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+            var nowVN = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vnTimeZone);
 
             string vnp_TxnRef = payment.Id.ToString(); // Sử dụng Id làm transaction reference
             string vnp_IpAddr = "127.0.0.1"; // Cần lấy IP thực tế từ request
-            string vnp_CreateDate = DateTime.Now.ToString("yyyyMMddHHmmss");
+            string vnp_CreateDate = nowVN.ToString("yyyyMMddHHmmss");
 
             var vnp_Params = new Dictionary<string, string>
             {
@@ -61,7 +63,7 @@ namespace Services.PaymentSS
                 { "vnp_CreateDate", vnp_CreateDate }
             };
 
-            var expireDate = DateTime.Now.AddMinutes(15);
+            var expireDate = nowVN.AddMinutes(15);
             vnp_Params.Add("vnp_ExpireDate", expireDate.ToString("yyyyMMddHHmmss"));
 
             var fieldNames = vnp_Params.Keys.ToList();
