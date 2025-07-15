@@ -83,7 +83,7 @@ namespace Services.PaymentSS
             vnp_Params.Add("vnp_SecureHash", vnp_SecureHash);
 
             Console.WriteLine("🟢 [DEBUG] My SecureHash: " + vnp_SecureHash);
-            var queryString = string.Join("&", vnp_Params.Select(kvp => $"{kvp.Key}={Uri.EscapeDataString(kvp.Value)}"));
+            string queryString = string.Join("&", vnp_Params.Select(kvp => $"{kvp.Key}={Uri.EscapeDataString(kvp.Value)}"));
             return $"{_vnpayUrl}?{queryString}";
         }
         public bool ValidateVNPaySignature(IQueryCollection query)
