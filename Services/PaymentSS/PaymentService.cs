@@ -69,8 +69,11 @@ namespace Services.PaymentSS
             var fieldNames = vnp_Params.Keys.ToList();
             fieldNames.Sort();
             var hashData = string.Join("&", fieldNames.Select(key => $"{key}={vnp_Params[key]}"));
-            var vnp_SecureHash = HmacSHA512(_vnpHashSecret, hashData);
+            Console.WriteLine("🔍 VNPay rawData for hash:");
+            Console.WriteLine(hashData);
 
+            var vnp_SecureHash = HmacSHA256(_vnpHashSecret, hashData);
+            vnp_Params.Add("vnp_SecureHashType", "SHA256");
             vnp_Params.Add("vnp_SecureHash", vnp_SecureHash);
 
             var queryString = string.Join("&", vnp_Params.Select(kvp => $"{kvp.Key}={Uri.EscapeDataString(kvp.Value)}"));
@@ -85,15 +88,15 @@ namespace Services.PaymentSS
 
             var sortedKeys = vnpData.Keys.OrderBy(k => k).ToList();
             var rawData = string.Join("&", sortedKeys.Select(k => $"{k}={vnpData[k]}"));
-            var checkHash = HmacSHA512(_vnpHashSecret, rawData);
+            var checkHash = HmacSHA256(_vnpHashSecret, rawData);
 
             return checkHash.Equals(query["vnp_SecureHash"], StringComparison.OrdinalIgnoreCase);
         }
-        private static string HmacSHA512(string key, string inputData)
+        private static string HmacSHA256(string key, string inputData)
         {
             var keyBytes = Encoding.UTF8.GetBytes(key);
             var inputBytes = Encoding.UTF8.GetBytes(inputData);
-            using (var hmac = new System.Security.Cryptography.HMACSHA512(keyBytes))
+            using (var hmac = new System.Security.Cryptography.HMACSHA256(keyBytes))
             {
                 var hashBytes = hmac.ComputeHash(inputBytes);
                 return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
@@ -138,7 +141,7 @@ namespace Services.PaymentSS
     var fieldNames = vnp_Params.Keys.ToList();
     fieldNames.Sort();
     var hashData = string.Join("&", fieldNames.Select(key => $"{key}={vnp_Params[key]}"));
-    var vnp_SecureHash = HmacSHA512(_vnpHashSecret, hashData);
+    var vnp_SecureHash = HmacSHA256(_vnpHashSecret, hashData);
 
     vnp_Params.Add("vnp_SecureHash", vnp_SecureHash);
 
