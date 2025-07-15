@@ -13,5 +13,8 @@ namespace Services.DTO
         public decimal Amount { get; set; } 
 
         public string OrderInfo { get; set; } = string.Empty;
+
+        public string Locale { get; set; } = "vn";
+        public string OrderType { get; set; } = "other";
     }
 }

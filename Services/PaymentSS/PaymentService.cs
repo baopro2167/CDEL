@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Model;
 using Org.BouncyCastle.Asn1.Pkcs;
 using Repositories.PaymentRepo;
+using Services.DTO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,68 +25,63 @@ namespace Services.PaymentSS
               ,IHttpContextAccessor httpContextAccessor)
         {
             _paymentRepository = paymentRepository;
-            _vnpayUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"; // Sử dụng sandbox cho test
+            _vnpayUrl = configuration["VNPaySettings:vnp_Url"]; // Sử dụng sandbox cho test
             _vnpTmnCode = configuration["VNPaySettings:VnpTmnCode"];
             _vnpHashSecret = configuration["VNPaySettings:VnpHashSecret"];
             _vnpReturnUrl = configuration["VNPaySettings:VnpReturnUrl"];
             _httpContextAccessor = httpContextAccessor;
         }
-        public async Task<string> CreatePaymentUrl(int userId, int requestId, decimal amount, string orderInfo)
+        public async Task<string> CreatePaymentUrl(CreatePaymentRequest request)
         {
             var payment = new Payment
             {
-                UserId = userId,
-                RequestId = requestId,
-                Amount = amount,
+                UserId = request.UserId,
+                RequestId = request.RequestId,
+                Amount = request.Amount,
                 StatusId = "Pending",
-                 ResponseCode = "Pending",
-                 TransactionNo= "Pending",
-
+                ResponseCode = "Pending",
+                TransactionNo = "Pending"
             };
 
             await _paymentRepository.CreateAsync(payment);
-            var vnTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
-            var nowVN = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vnTimeZone);
 
-            string vnp_TxnRef = payment.Id.ToString(); // Sử dụng Id làm transaction reference
-            string vnp_IpAddr = _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.MapToIPv4().ToString() ?? "127.0.0.1";
-
+            var nowVN = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
+            string vnp_TxnRef = payment.Id.ToString();
+            string vnp_IpAddr = _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString() ?? "127.0.0.1";
             string vnp_CreateDate = nowVN.ToString("yyyyMMddHHmmss");
+            string vnp_ExpireDate = nowVN.AddMinutes(15).ToString("yyyyMMddHHmmss");
 
             var vnp_Params = new Dictionary<string, string>
-            {
-                { "vnp_Version", "2.1.0" },
-                { "vnp_Command", "pay" },
-                { "vnp_TmnCode", _vnpTmnCode },
-                { "vnp_Amount", (amount * 100).ToString() }, // VNPay yêu cầu đơn vị nhỏ nhất (VND)
-                { "vnp_CurrCode", "VND" },
-                { "vnp_TxnRef", vnp_TxnRef },
-                { "vnp_OrderInfo", orderInfo },
-                { "vnp_OrderType", "other" },
-                { "vnp_Locale", "vn" },
-                { "vnp_ReturnUrl", _vnpReturnUrl },
-                { "vnp_IpAddr", vnp_IpAddr },
-                { "vnp_CreateDate", vnp_CreateDate }
-            };
+        {
+            { "vnp_Version", "2.1.0" },
+            { "vnp_Command", "pay" },
+            { "vnp_TmnCode", _vnpTmnCode },
+            { "vnp_Amount", ((long)(request.Amount * 100)).ToString() },
+            { "vnp_CurrCode", "VND" },
+            { "vnp_TxnRef", vnp_TxnRef },
+            { "vnp_OrderInfo", request.OrderInfo },
+            { "vnp_OrderType", request.OrderType },
+            { "vnp_Locale", request.Locale  },
+            { "vnp_ReturnUrl", _vnpReturnUrl },
+            { "vnp_IpAddr", vnp_IpAddr },
+            { "vnp_CreateDate", vnp_CreateDate },
+            { "vnp_ExpireDate", vnp_ExpireDate }
+        };
 
-            var expireDate = nowVN.AddMinutes(15);
-            vnp_Params.Add("vnp_ExpireDate", expireDate.ToString("yyyyMMddHHmmss"));
+            var hashData = BuildHashData(vnp_Params);
+            var secureHash = HmacSHA256(_vnpHashSecret, hashData);
 
-            var fieldNames = vnp_Params.Keys.ToList();
-            fieldNames.Sort();
-            var hashData = string.Join("&", fieldNames.Select(key => $"{key}={vnp_Params[key]}"));
-            Console.WriteLine("🟡 [DEBUG] SecretKey: " + _vnpHashSecret);
-            Console.WriteLine("🟡 [DEBUG] RawData: " + hashData);
-
-
-            var vnp_SecureHash = HmacSHA256(_vnpHashSecret, hashData);
             vnp_Params.Add("vnp_SecureHashType", "SHA256");
-            vnp_Params.Add("vnp_SecureHash", vnp_SecureHash);
+            vnp_Params.Add("vnp_SecureHash", secureHash);
 
-            Console.WriteLine("🟢 [DEBUG] My SecureHash: " + vnp_SecureHash);
-            string queryString = string.Join("&", vnp_Params.Select(kvp => $"{kvp.Key}={Uri.EscapeDataString(kvp.Value)}"));
-            return $"{_vnpayUrl}?{queryString}";
+            var query = string.Join("&", vnp_Params.Select(kv => $"{kv.Key}={Uri.EscapeDataString(kv.Value)}"));
+            return $"{_vnpayUrl}?{query}";
         }
+        private string BuildHashData(Dictionary<string, string> data)
+        {
+            return string.Join("&", data.OrderBy(k => k.Key).Select(kvp => $"{kvp.Key}={kvp.Value}"));
+        }
+
         public bool ValidateVNPaySignature(IQueryCollection query)
         {
             var vnpData = query

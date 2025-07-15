@@ -16,28 +16,11 @@ namespace WebApplication1.Controllers
             _paymentService = paymentService;
         }
 
-        // 1. Tạo thanh toán mới
         [HttpPost("create")]
         public async Task<IActionResult> CreatePayment([FromBody] CreatePaymentRequest request)
         {
-            if (request == null || request.Amount <= 0)
-                return BadRequest(new { message = "Invalid payment request" });
-
-            try
-            {
-                var paymentUrl = await _paymentService.CreatePaymentUrl(
-                    request.UserId,
-                    request.RequestId,
-                    request.Amount,
-                    request.OrderInfo
-                );
-
-                return Ok(new { paymentUrl });
-            }
-            catch (System.Exception ex)
-            {
-                return StatusCode(500, new { message = "Create payment failed", error = ex.Message });
-            }
+            var url = await _paymentService.CreatePaymentUrl(request);
+            return Ok(new { paymentUrl = url });
         }
 
         [HttpGet("payment-return")]
