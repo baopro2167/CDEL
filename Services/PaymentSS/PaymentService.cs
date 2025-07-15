@@ -47,7 +47,8 @@ namespace Services.PaymentSS
 
             var nowVN = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
             string vnp_TxnRef = payment.Id.ToString();
-            string vnp_IpAddr = _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString() ?? "127.0.0.1";
+            var ip = _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress;
+            string vnp_IpAddr = ip?.MapToIPv4().ToString() ?? "127.0.0.1";
             string vnp_CreateDate = nowVN.ToString("yyyyMMddHHmmss");
             string vnp_ExpireDate = nowVN.AddMinutes(15).ToString("yyyyMMddHHmmss");
 
@@ -79,7 +80,8 @@ namespace Services.PaymentSS
         }
         private string BuildHashData(Dictionary<string, string> data)
         {
-            return string.Join("&", data.OrderBy(k => k.Key).Select(kvp => $"{kvp.Key}={kvp.Value}"));
+            return string.Join("&", data.OrderBy(k => k.Key)
+         .Select(kvp => $"{kvp.Key}={Uri.EscapeDataString(kvp.Value)}"));
         }
 
         public bool ValidateVNPaySignature(IQueryCollection query)
