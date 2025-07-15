@@ -43,7 +43,7 @@ namespace Services.PaymentSS
 
             string vnp_TxnRef = payment.Id.ToString(); // Sử dụng Id làm transaction reference
             string vnp_IpAddr = "127.0.0.1"; // Cần lấy IP thực tế từ request
-            string vnp_CreateDate = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
+            string vnp_CreateDate = DateTime.Now.ToString("yyyyMMddHHmmss");
 
             var vnp_Params = new Dictionary<string, string>
             {
