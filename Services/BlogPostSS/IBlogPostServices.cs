@@ -16,7 +16,7 @@ namespace Services.BlogPostSS
         Task<PaginatedList<BlogPost>> GetAll(int pageNumber, int pageSize);
         
         Task<BlogPostResponseDTO> AddAsync(BlogPostCreateDTO blogPostCreateDTO, int userId);
-        Task<BlogPostResponseDTO?> UpdateAsync(int id, BlogPostUpdateDTO blogPostUpdateDTO);
+        Task<BlogPostResponseUPDTO?> UpdateAsync(int id, BlogPostUpdateDTO blogPostUpdateDTO);
         Task DeleteAsync(int id);
     }
 }

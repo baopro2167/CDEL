@@ -79,7 +79,7 @@ namespace Services.BlogPostSS
         }
         
 
-        public async Task<BlogPostResponseDTO?> UpdateAsync(int id, BlogPostUpdateDTO blogPostUpdateDTO)
+        public async Task<BlogPostResponseUPDTO?> UpdateAsync(int id, BlogPostUpdateDTO blogPostUpdateDTO)
         {
             var blogPost = await _blogPostRepository.GetByIdAsync(id);
 
@@ -90,17 +90,20 @@ namespace Services.BlogPostSS
 
             // Cập nhật thông tin bài viết
             blogPost.Title = blogPostUpdateDTO.Title;
-            blogPost.Content = blogPostUpdateDTO.Content;
+            blogPost.Content = blogPostUpdateDTO.Content ?? string.Empty;
             blogPost.UpdateAt = DateTime.UtcNow; // Cập nhật thời gian
+
 
             // Lưu thay đổi vào cơ sở dữ liệu
             await _blogPostRepository.UpdateAsync(blogPost);
 
             // Trả về BlogPostResponseDTO
-            return new BlogPostResponseDTO
+            return new BlogPostResponseUPDTO
             {
                 BlogId = blogPost.Id,
-                Title = blogPost.Title
+                Title = blogPost.Title,
+                Content = blogPost.Content,
+                
             };
         }
         
@@ -122,7 +125,8 @@ namespace Services.BlogPostSS
                                                      {
                                                          Id = blog.Id,
                                                          Title = blog.Title,
-                                                        
+                                                        // Content = blog.Content,
+
                                                          Author = blog.Author,
                                                          CreateAt = blog.CreateAt
                                                      })
