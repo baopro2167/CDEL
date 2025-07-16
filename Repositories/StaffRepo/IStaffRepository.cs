@@ -12,6 +12,7 @@ namespace Repositories.StaffRepo
         Task AddAsync(Staff staff);
         Task<Staff?> GetByIdAsync(int id);
         Task<IEnumerable<Staff>> GetAllAsync();
+        IQueryable<Staff> GetAll();
 
         Task<Staff> UpdateAsync(Staff staff);
         Task DeleteAsync(int id);

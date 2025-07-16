@@ -1,4 +1,5 @@
 ﻿using Model;
+using Repositories.Pagging;
 using Repositories.StaffRepo;
 using Repositories.UserRepo;
 using Services.DTO;
@@ -18,6 +19,15 @@ namespace Services.StaffSS
         {
             _staffRepository = staffRepository;
             _userRepository = userRepository;
+        }
+        public async Task<PaginatedList<Staff>> GetAll(int pageNumber, int pageSize)
+        {
+            IQueryable<Staff> staff = _staffRepository.GetAll().AsQueryable();
+            return await PaginatedList<Staff>.CreateAsync(staff, pageNumber, pageSize);
+        }
+        public async Task<IEnumerable<Staff>> GetAllKitAsync()
+        {
+            return await _staffRepository.GetAllAsync();
         }
         public async Task<int?> GetStaffIdByUserIdAsync(int userId)
         {

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Model;
 using Services.DTO;
 using Services.StaffSS;
 
@@ -14,10 +15,34 @@ namespace WebApplication1.Controllers
         public StaffController(IStaffService staffService)
             => _staffService = staffService;
         /// <summary>
+        /// Lấy danh sách staff có phân trang
+        /// </summary>
+        [HttpGet("paged")]
+        public async Task<IActionResult> GetPaged(int pageNumber = 1, int pageSize = 10)
+        {
+            var result = await _staffService.GetAll(pageNumber, pageSize);
+            return Ok(result);
+        }
+
+
+
+
+        /// <summary>
+        /// Lấy toàn bộ Staff
+        /// </summary>
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Kit>>> GetAll()
+        {
+            var kit = await _staffService.GetAllKitAsync();
+            return Ok(kit);
+        }
+
+
+        /// <summary>
         /// Lấy StaffId dựa trên UserId
         /// </summary>
-        
-       
+
+
         [HttpGet("staffid/byuserid/{userId}")]
        
         public async Task<IActionResult> GetStaffIdByUserId(int userId)

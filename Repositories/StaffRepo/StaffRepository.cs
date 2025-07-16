@@ -47,8 +47,12 @@ namespace Repositories.StaffRepo
                 .AsNoTracking()
                 .ToListAsync();
         }
+        public IQueryable<Staff> GetAll()
+        {
+            return _context.Staffs.AsNoTracking();
+        }
 
-   
+
         public async Task DeleteAsync(int id)
         {
             var kit = await _context.Set<Staff>().FindAsync(id);
