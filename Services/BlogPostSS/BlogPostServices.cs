@@ -125,7 +125,7 @@ namespace Services.BlogPostSS
                                                      {
                                                          Id = blog.Id,
                                                          Title = blog.Title,
-                                                        // Content = blog.Content,
+                                                        Content = blog.Content,
 
                                                          Author = blog.Author,
                                                          CreateAt = blog.CreateAt
