@@ -7,11 +7,12 @@ using System.Threading.Tasks;
 
 namespace Services.DTO
 {
-   public  class BlogPostUpdateDTO
+    public class BlogPostUpdateDTO
     {
         public string Title { get; set; }
 
-        
+
         public string Content { get; set; }
+       
     }
 }
