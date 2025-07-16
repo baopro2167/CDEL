@@ -131,7 +131,7 @@ namespace WebApplication1.Controllers
         /// </summary>
 
         [HttpPost]
-        [Authorize(Roles = "3")]
+        [Authorize(Roles = "3,4")]
         public async Task<IActionResult> Add([FromBody] AddKitDeliveryDTO addKitDeliveryDTO)
         {
 
