@@ -64,5 +64,10 @@ namespace Repositories.ExResultRepo
                 await _context.SaveChangesAsync();
             }
         }
+        public async Task<ExaminationResult?> GetByRequestIdAsync(int requestId)
+        {
+            return await _context.ExaminationResults
+                .FirstOrDefaultAsync(r => r.RequestId == requestId);
+        }
     }
 }

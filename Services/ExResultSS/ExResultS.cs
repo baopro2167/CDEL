@@ -92,5 +92,9 @@ namespace Services.ExResultSS
         {
             return await _exResultRepository.GetByUserIdAsync(userId, pageNumber, pageSize);
         }
+        public async Task<ExaminationResult?> GetByRequestIdAsync(int requestId)
+        {
+            return await _exResultRepository.GetByRequestIdAsync(requestId);
+        }
     }
 }

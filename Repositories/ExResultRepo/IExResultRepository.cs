@@ -17,5 +17,7 @@ namespace Repositories.ExResultRepo
         Task DeleteAsync(int id);
         IQueryable<ExaminationResult> GetAll();
         Task<PaginatedList<ExaminationResult>> GetByUserIdAsync(int userId, int pageNumber, int pageSize);
+
+        Task<ExaminationResult?> GetByRequestIdAsync(int requestId);
     }
 }

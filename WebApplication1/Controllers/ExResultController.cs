@@ -14,6 +14,36 @@ namespace WebApplication1.Controllers
         {
             _exResultService = exResultService;
         }
+
+
+
+        /// <summary>
+        /// Get ExaminationResult by RequestId
+        /// </summary>
+        /// <param name="requestId">The ID of the request</param>
+        /// <returns>ExaminationResult if found, or NotFound if not found</returns>
+        /// <response code="200">Returns the ExaminationResult</response>
+        /// <response code="404">If the ExaminationResult is not found</response>
+        [HttpGet("by-request/{requestId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetByRequestId(int requestId)
+        {
+            var result = await _exResultService.GetByRequestIdAsync(requestId);
+
+            if (result == null)
+            {
+                return NotFound(new { error = $"No ExaminationResult found for RequestId {requestId}" });
+            }
+
+            return Ok(result);
+        }
+
+
+
+
+
+
         /// <summary>
         /// Lấy danh sách kết quả xét nghiệm theo UserId có phân trang
         /// </summary>
