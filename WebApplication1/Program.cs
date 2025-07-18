@@ -43,12 +43,30 @@ var builder = WebApplication.CreateBuilder(args);
 //});
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowVercelFrontend", policy =>
+    if (builder.Environment.IsDevelopment())
     {
-        policy.WithOrigins("https://swp-391-blood-dna-test.vercel.app",, "http://localhost:5173")
-                 .AllowAnyMethod()  // Cho phép mọi phương thức HTTP (GET, POST, PUT, DELETE, ...)
-                 .AllowAnyHeader(); 
-    });
+        options.AddPolicy("AllowDevelopment", policy =>
+        {
+            policy.WithOrigins(
+                "http://localhost:5173", // Frontend local
+                "http://localhost:5072", // API port từ profile http
+                "https://localhost:7071", // API port từ profile https
+                "http://localhost:8080", // API port từ Docker
+                "https://localhost:8081" // API port từ Docker
+            )
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+        });
+    }
+    else
+    {
+        options.AddPolicy("AllowProduction", policy =>
+        {
+            policy.WithOrigins("https://swp-391-blood-dna-test.vercel.app")
+                  .AllowAnyMethod()
+                  .AllowAnyHeader();
+        });
+    }
 });
 
 
@@ -207,7 +225,7 @@ var app = builder.Build();
 
 
 app.UseRouting();
-app.UseCors("AllowVercelFrontend");
+app.UseCors(app.Environment.IsDevelopment() ? "AllowDevelopment" : "AllowProduction");
 app.UseAuthentication();
 app.UseAuthorization();
 
