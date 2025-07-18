@@ -15,6 +15,36 @@ namespace WebApplication1.Controllers
         {
             _exRequestService = exRequestService;
         }
+        [HttpPost("{requestId}/cancel")]
+      
+        public async Task<IActionResult> CancelRequest(int requestId)
+        {
+            try
+            {
+                var response = await _exRequestService.CancelAsync(requestId);
+                return Ok(response);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { error = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
         /// <summary>
         /// Cập nhật một phần thông tin yêu cầu kiểm tra (ServiceId, SampleMethodId, AppointmentTime)
         /// </summary>

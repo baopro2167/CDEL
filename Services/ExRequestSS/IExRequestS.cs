@@ -30,5 +30,7 @@ namespace Services.ExRequestSS
          Task<IEnumerable<ExStatusRequestDTO>> GetRequestsByStaffIdAsync(int staffId);
 
         Task<ExaminationRequest?> UpdatePartialAsync(int id, UpdateExRequestPartialDTO dto);
+
+        Task<CancelExRequestResponseDTO> CancelAsync(int requestId);
     }
 }

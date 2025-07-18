@@ -437,7 +437,71 @@ namespace Services.ExRequestSS
 
             return examinationRequest;
         }
+        public async Task<CancelExRequestResponseDTO> CancelAsync(int requestId) // Thay đổi kiểu trả về thành object để linh hoạt
+        {
+            // 1. Lấy request
+            var req = await _exRequestRepository.GetByIdAsync(requestId);
+            if (req == null)
+                throw new KeyNotFoundException($"Request with ID {requestId} not found.");
 
+            // 2. Kiểm tra trạng thái hiện tại (chỉ cho phép hủy nếu chưa hoàn thành)
+            var cancellableStatuses = new[] { "1", "2", "3", "4" }; // Không cho phép hủy nếu đã "Completed" (5)
+            if (!cancellableStatuses.Contains(req.StatusId))
+                throw new InvalidOperationException($"Request with ID {requestId} cannot be cancelled in current status {GetStatusName(req.StatusId)}.");
+
+            // 3. Cập nhật trạng thái thành "Cancelled" (giả sử mã là "6")
+            req.StatusId = "6";
+            req.UpdateAt = DateTime.UtcNow;
+            await _exRequestRepository.UpdateAsync(req);
+
+            // 4. Lấy thông tin người dùng để gửi email
+            var user = await _userRepository.GetByIdAsync(req.UserId);
+            if (user == null)
+                throw new KeyNotFoundException($"User with ID {req.UserId} not found.");
+
+            var service = await _serviceRepository.GetByIdAsync(req.ServiceId);
+            var sampleMethod = await _sampleMethodRepository.GetByIdAsync(req.SampleMethodId);
+
+            // 5. Gửi email thông báo hủy
+            var body = $@"
+        <p>Xin chào {user.Name},</p>
+        <p>Yêu cầu khám của bạn  đã được hủy:</p>
+        <ul>
+            <li><strong>Số điện thoại:</strong> {user.Phone}</li>
+            <li><strong>Địa chỉ:</strong> {user.Address}</li>
+            <li><strong>Dịch vụ:</strong> {service?.Name ?? "Không rõ"}</li>
+            <li><strong>Phương pháp lấy mẫu:</strong> {sampleMethod?.Name ?? "Không rõ"}</li>
+            <li><strong>Thời gian hẹn:</strong> {req.AppointmentTime:yyyy-MM-dd HH:mm} UTC</li>
+            <li><strong>Lý do:</strong> Yêu cầu hủy từ người dùng</li>
+        </ul>
+        <p>Nếu bạn có thắc mắc, vui lòng liên hệ hỗ trợ.</p>
+    ";
+            await _emailService.SendAsync(new EmailDTO
+            {
+                To = user.Email,
+                Subject = "Yêu cầu khám đã bị hủy",
+                Body = body
+            });
+
+            // 6. Build response theo yêu cầu
+            string statusName = GetStatusName(req.StatusId);
+            return new CancelExRequestResponseDTO
+            {
+                Id = req.Id,
+                UserId = req.UserId,
+                UserName = user.Name,
+                ServiceId = req.ServiceId,
+                ServiceName = service?.Name ?? "Không rõ",
+                ServicePrice = service?.Price ?? 0m,
+                SampleMethodId = req.SampleMethodId,
+                SampleMethodName = sampleMethod?.Name ?? "Không rõ",
+                StatusId = req.StatusId,
+                StatusName = statusName,
+                AppointmentTime = req.AppointmentTime.ToUniversalTime(),
+                UpdateAt = req.CreateAt.ToUniversalTime(),
+                StaffId = req.StaffId
+            };
+        }
 
 
 
@@ -455,6 +519,7 @@ namespace Services.ExRequestSS
                 "3" => "SampleCollected",
                 "4" => "Processing",
                 "5" => "Completed",
+                "6" => "Cancelled",
                 _ => "Unknown" // Trường hợp không xác định
             };
         }
