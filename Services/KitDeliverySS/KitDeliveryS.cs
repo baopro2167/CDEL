@@ -155,8 +155,7 @@ namespace Services.KitDeliverySS
             // 2. Chỉ cho phép chuyển từ "Sent" → "Received" hoặc "Returned"
             if (delivery.StatusId != "Sent")
                 throw new InvalidOperationException("Chỉ được xác nhận khi trạng thái hiện tại là Sent.");
-            if (dto.Status != "Received" && dto.Status != "Returned")
-                throw new InvalidOperationException("Status phải là 'Received' hoặc 'Returned'.");
+           
 
             // 3. Cập nhật trạng thái và UpdatedAt
             delivery.StatusId = dto.Status;
