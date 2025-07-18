@@ -111,12 +111,14 @@ namespace Services.AccountS
 
             // 3) Gửi email cho user
             var frontendUrls = _config.GetSection("AppSettings:FrontendUrls").Get<string[]>();
-            var frontendUrl = "http://localhost:5173"; // Mặc định là local
-            if (frontendUrls != null && Array.Exists(frontendUrls, url => url.Contains("swp-391-blood-dna-test.vercel.app")))
+            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+            var frontendUrl = frontendUrls?[0] ?? "http://localhost:5173"; // mặc định local
+
+            if (environment == "Production" && frontendUrls?.Length > 1)
             {
-                frontendUrl = "https://swp-391-blood-dna-test.vercel.app";
+                frontendUrl = frontendUrls[1]; // production URL
             }
-            var resetLink = $"{_config["AppSettings:FrontendUrl"]}/reset-password?email={Uri.EscapeDataString(user.Email)}&token={Uri.EscapeDataString(token)}";
+            var resetLink = $"{frontendUrl}/reset-password?email={Uri.EscapeDataString(user.Email)}&token={Uri.EscapeDataString(token)}";
             var html = $@"
             <p>Chào {user.Name},</p>
             <p>Bạn (hoặc ai đó) đã yêu cầu đặt lại mật khẩu. Vui lòng nhấn vào link dưới đây để reset mật khẩu (hết hạn sau 1h):</p>
