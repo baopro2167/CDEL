@@ -45,7 +45,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowVercelFrontend", policy =>
     {
-        policy.WithOrigins("https://swp-391-blood-dna-test.vercel.app",, "http://localhost:5173")
+        policy.WithOrigins("https://swp-391-blood-dna-test.vercel.app", "http://localhost:5173")
                  .AllowAnyMethod()  // Cho phép mọi phương thức HTTP (GET, POST, PUT, DELETE, ...)
                  .AllowAnyHeader(); 
     });
