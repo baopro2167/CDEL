@@ -41,11 +41,12 @@ var builder = WebApplication.CreateBuilder(args);
 //{
 //    serverOptions.ListenAnyIP(int.Parse(port));  // Lắng nghe cổng từ Railway
 //});
+var frontendUrls = builder.Configuration.GetSection("AppSettings:FrontendUrls").Get<string[]>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowVercelFrontend", policy =>
     {
-        policy.WithOrigins("https://swp-391-blood-dna-test.vercel.app", "http://localhost:5173")
+        policy.WithOrigins(frontendUrls)
                  .AllowAnyMethod()  // Cho phép mọi phương thức HTTP (GET, POST, PUT, DELETE, ...)
                  .AllowAnyHeader(); 
     });
