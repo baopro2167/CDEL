@@ -153,9 +153,9 @@ namespace Services.KitDeliverySS
                 throw new KeyNotFoundException($"KitDelivery with ID {kitDeliveryId} not found.");
 
             // 2. Chỉ cho phép chuyển từ "Sent" → "Received" hoặc "Returned"
-            if (delivery.StatusId != "Sent")
-                throw new InvalidOperationException("Chỉ được xác nhận khi trạng thái hiện tại là Sent.");
            
+            if (dto.Status != "Returned" )
+                throw new InvalidOperationException("Không cho phép tiếp tục ");
 
             // 3. Cập nhật trạng thái và UpdatedAt
             delivery.StatusId = dto.Status;
