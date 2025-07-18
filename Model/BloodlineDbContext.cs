@@ -179,6 +179,12 @@ namespace Model
                 .WithOne(er => er.Payment)
                 .HasForeignKey<Payment>(p => p.RequestId)
                 .OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<Payment>(entity =>
+            {
+                entity.Property(e => e.Amount)
+                    .HasColumnType("decimal(18, 2)") // Hoặc điều chỉnh precision và scale phù hợp
+                    .HasPrecision(18, 2); // Tùy chọn: Chỉ định rõ precision và scale
+            });
         }
     }
 
