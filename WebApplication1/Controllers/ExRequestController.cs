@@ -15,6 +15,12 @@ namespace WebApplication1.Controllers
         {
             _exRequestService = exRequestService;
         }
+
+
+        /// <summary>
+        /// Cancelled exrequest và gửi mail hủy 
+        /// </summary>
+
         [HttpPost("{requestId}/cancel")]
       
         public async Task<IActionResult> CancelRequest(int requestId)
