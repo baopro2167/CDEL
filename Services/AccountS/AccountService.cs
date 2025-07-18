@@ -110,8 +110,13 @@ namespace Services.AccountS
             await _userRepository.UpdateAsync(user);
 
             // 3) Gửi email cho user
-            var frontendUrl = _config["AppSettings:FrontendUrls"];
-            var resetLink = $"{_config["AppSettings:FrontendUrls"]}/reset-password?email={Uri.EscapeDataString(user.Email)}&token={Uri.EscapeDataString(token)}";
+            var frontendUrls = _config.GetSection("AppSettings:FrontendUrls").Get<string[]>();
+            var frontendUrl = "http://localhost:5173"; // Mặc định là local
+            if (frontendUrls != null && Array.Exists(frontendUrls, url => url.Contains("swp-391-blood-dna-test.vercel.app")))
+            {
+                frontendUrl = "https://swp-391-blood-dna-test.vercel.app";
+            }
+            var resetLink = $"{_config["AppSettings:FrontendUrl"]}/reset-password?email={Uri.EscapeDataString(user.Email)}&token={Uri.EscapeDataString(token)}";
             var html = $@"
             <p>Chào {user.Name},</p>
             <p>Bạn (hoặc ai đó) đã yêu cầu đặt lại mật khẩu. Vui lòng nhấn vào link dưới đây để reset mật khẩu (hết hạn sau 1h):</p>
