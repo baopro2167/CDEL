@@ -43,9 +43,9 @@ var builder = WebApplication.CreateBuilder(args);
 //});
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAllOrigins", policy =>
+    options.AddPolicy("AllowVercelFrontend", policy =>
     {
-        policy.AllowAnyOrigin()  // Cho phép mọi origin
+        policy.WithOrigins("https://swp-391-blood-dna-test.vercel.app")
                  .AllowAnyMethod()  // Cho phép mọi phương thức HTTP (GET, POST, PUT, DELETE, ...)
                  .AllowAnyHeader(); 
     });
@@ -207,7 +207,7 @@ var app = builder.Build();
 
 
 app.UseRouting();
-app.UseCors("AllowAllOrigins");
+app.UseCors("AllowVercelFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
 
