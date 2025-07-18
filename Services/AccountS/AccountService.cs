@@ -81,8 +81,17 @@ namespace Services.AccountS
             // 3. Lưu
             await _userRepository.UpdateAsync(user);
 
-            // 4. Trả về DTO
-            return new UpdateUserProfileResponseDTO
+            if (user.RoleId == 3)
+            {
+                var staff = await _staffRepository.GetByUserIdAsync(userId);
+                if (staff != null)
+                {
+                    staff.FullName = dto.Name; // Cập nhật FullName trong Staff
+                    await _staffRepository.UpdateAsync(staff);
+                }
+            }
+                // 4. Trả về DTO
+                return new UpdateUserProfileResponseDTO
             {
                 UserId = user.Id,
                 Name = user.Name,

@@ -20,5 +20,6 @@ namespace Repositories.StaffRepo
         Task<IEnumerable<Staff>> GetAllByIdsAsync(IEnumerable<int> ids);
 
         Task<int?> GetStaffIdByUserIdAsync(int userId);
+        Task<Staff> GetByUserIdAsync(int userId);
     }
 }

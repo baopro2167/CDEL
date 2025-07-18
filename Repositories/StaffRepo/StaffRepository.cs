@@ -30,6 +30,10 @@ namespace Repositories.StaffRepo
                 .FirstOrDefaultAsync();
             return staff > 0 ? staff : null;
         }
+        public async Task<Staff> GetByUserIdAsync(int userId)
+        {
+            return await _context.Staffs.FirstOrDefaultAsync(s => s.UserId == userId);
+        }
         public async Task AddAsync(Staff staff)
         {
             _context.Staffs.Add(staff);
