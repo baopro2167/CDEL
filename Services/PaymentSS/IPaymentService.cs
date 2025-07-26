@@ -10,10 +10,11 @@ namespace Services.PaymentSS
 {
     public interface IPaymentService
     {
-       
-        Task<string> CreatePaymentUrl(CreatePaymentRequest request);
-        Task<string> UpdatePaymentUrlAsync(int paymentId);
+        Task<string> CreatePaymentUrl(int userId, int requestId, decimal amount, string orderInfo);
+        Task<(bool IsValid, string Status, string TransactionNo)> ProcessVnpayReturn(IQueryCollection query);
+        //Task<string> CreatePaymentUrl(CreatePaymentRequest request);
+        //Task<string> UpdatePaymentUrlAsync(int paymentId);
 
-        bool ValidateVNPaySignature(IQueryCollection query);
+        //bool ValidateVNPaySignature(IQueryCollection query);
     }
 }

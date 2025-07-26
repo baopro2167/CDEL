@@ -1,5 +1,4 @@
-﻿using Model;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,13 +6,11 @@ using System.Threading.Tasks;
 
 namespace Services.DTO
 {
-    public class CreatePaymentRequest
+    public class PaymentRequestDTO
     {
         public int UserId { get; set; }
-        public int RquestId { get; set; }
+        public int RequestId { get; set; }
         public decimal Amount { get; set; }
         public string OrderInfo { get; set; }
-        public string OrderType { get; set; }
-        public string TxnRef { get; set; }
     }
 }

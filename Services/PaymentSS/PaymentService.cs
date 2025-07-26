@@ -7,8 +7,11 @@ using Services.DTO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
+using static Services.DTO.VnpayPayRequest;
 
 namespace Services.PaymentSS
 {
@@ -21,145 +24,151 @@ namespace Services.PaymentSS
         private readonly string _vnpHashSecret;
         private readonly string _vnpReturnUrl;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        public SortedList<string, string> requestData = new SortedList<string, string>(new VnpayCompare()); // Giữ nguyên từ VnpayPayRequest
+
+        // Property IP động lấy từ HttpContext
+        public string? IpAddress => _httpContextAccessor?.HttpContext?.Connection?.RemoteIpAddress?.ToString();
         public PaymentService(IPaymentRepository paymentRepository, IConfiguration configuration
-              ,IHttpContextAccessor httpContextAccessor)
+              , IHttpContextAccessor httpContextAccessor)
         {
             _paymentRepository = paymentRepository;
-            _vnpayUrl = configuration["VNPaySettings:vnp_Url"]; // Sử dụng sandbox cho test
+            _vnpayUrl = configuration["VNPaySettings:VnpUrl"]; // Sử dụng sandbox cho test
             _vnpTmnCode = configuration["VNPaySettings:VnpTmnCode"];
             _vnpHashSecret = configuration["VNPaySettings:VnpHashSecret"];
             _vnpReturnUrl = configuration["VNPaySettings:VnpReturnUrl"];
             _httpContextAccessor = httpContextAccessor;
         }
-        public async Task<string> CreatePaymentUrl(CreatePaymentRequest request)
+        public async Task<string> CreatePaymentUrl(int userId, int requestId, decimal amount, string orderInfo)
         {
-            var payment = new Payment
+            var payment = new Model.Payment
             {
-                UserId = request.UserId,
-                RequestId = request.RequestId,
-                Amount = request.Amount,
+                UserId = userId,
+                RequestId = requestId,
+                Amount = amount,
                 StatusId = "Pending",
-                ResponseCode = "Pending",
-                TransactionNo = "Pending"
+                CreatedAt = GetVietnamTime()
             };
 
             await _paymentRepository.CreateAsync(payment);
 
-            var nowVN = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
-            string vnp_TxnRef = payment.Id.ToString();
-            var ip = _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress;
-            string vnp_IpAddr = ip?.MapToIPv4().ToString() ?? "127.0.0.1";
-            string vnp_CreateDate = nowVN.ToString("yyyyMMddHHmmss");
-            string vnp_ExpireDate = nowVN.AddMinutes(15).ToString("yyyyMMddHHmmss");
+            // Điền dữ liệu trực tiếp vào requestData
+            requestData["vnp_Version"] = "2.1.0";
+            requestData["vnp_Command"] = "pay";
+            requestData["vnp_TmnCode"] = _vnpTmnCode;
+            requestData["vnp_Amount"] = ((int)amount * 100).ToString();
+            requestData["vnp_CurrCode"] = "VND";
+            requestData["vnp_TxnRef"] = payment.Id.ToString();
+            requestData["vnp_OrderInfo"] = orderInfo;
+            requestData["vnp_OrderType"] = "other";
+            requestData["vnp_ReturnUrl"] = _vnpReturnUrl;
+            requestData["vnp_IpAddr"] = IpAddress ?? "127.0.0.1";
+            requestData["vnp_CreateDate"] = GetVietnamTime().ToString("yyyyMMddHHmmss");
+            requestData["vnp_Locale"] = "vn";
 
-            var vnp_Params = new Dictionary<string, string>
-        {
-            { "vnp_Version", "2.1.0" },
-            { "vnp_Command", "pay" },
-            { "vnp_TmnCode", _vnpTmnCode },
-            { "vnp_Amount", ((long)(request.Amount * 100)).ToString() },
-            { "vnp_CurrCode", "VND" },
-            { "vnp_TxnRef", vnp_TxnRef },
-            { "vnp_OrderInfo", request.OrderInfo },
-            { "vnp_OrderType", request.OrderType },
-            { "vnp_Locale", request.Locale  },
-            { "vnp_ReturnUrl", _vnpReturnUrl },
-            { "vnp_IpAddr", vnp_IpAddr },
-            { "vnp_CreateDate", vnp_CreateDate },
-            { "vnp_ExpireDate", vnp_ExpireDate }
-        };
-
-            var hashData = BuildHashData(vnp_Params);
-            var secureHash = HmacSHA256(_vnpHashSecret, hashData);
-
-            vnp_Params.Add("vnp_SecureHashType", "SHA256");
-            vnp_Params.Add("vnp_SecureHash", secureHash);
-
-            var query = string.Join("&", vnp_Params.Select(kv => $"{kv.Key}={Uri.EscapeDataString(kv.Value)}"));
-            return $"{_vnpayUrl}?{query}";
+            string rawData = BuildRawData(requestData);
+            string secureHash = GenerateSecureHash(rawData);
+            return $"{_vnpayUrl}?{rawData}&vnp_SecureHash={secureHash}";
         }
-        private string BuildHashData(Dictionary<string, string> data)
+        public async Task<(bool IsValid, string Status, string TransactionNo)> ProcessVnpayReturn(
+    IQueryCollection query)
         {
-            return string.Join("&", data.OrderBy(k => k.Key)
-         .Select(kvp => $"{kvp.Key}={Uri.EscapeDataString(kvp.Value)}"));
-        }
+            // 1. Lấy khoản secure hash
+            var vnpSecureHash = query["vnp_SecureHash"].ToString();
+            var vnpSecureHashType = query["vnp_SecureHashType"].ToString(); // nếu có
 
-        public bool ValidateVNPaySignature(IQueryCollection query)
-        {
-            var vnpData = query
-                .Where(kv => kv.Key.StartsWith("vnp_") && kv.Key != "vnp_SecureHash")
-             
-            .ToDictionary(kv => kv.Key, kv => kv.Value.ToString());
-
-            var sortedKeys = vnpData.Keys.OrderBy(k => k).ToList();
-            var rawData = string.Join("&", sortedKeys.Select(k => $"{k}={vnpData[k]}"));
-            var checkHash = HmacSHA256(_vnpHashSecret, rawData);
-
-            return checkHash.Equals(query["vnp_SecureHash"], StringComparison.OrdinalIgnoreCase);
-        }
-        private static string HmacSHA256(string key, string inputData)
-        {
-            var keyBytes = Encoding.UTF8.GetBytes(key);
-            var inputBytes = Encoding.UTF8.GetBytes(inputData);
-            using (var hmac = new System.Security.Cryptography.HMACSHA256(keyBytes))
+            // 2. Build sorted list từ query
+            var sorted = new SortedList<string, string>(StringComparer.Ordinal);
+            foreach (var key in query.Keys)
             {
-                var hashBytes = hmac.ComputeHash(inputBytes);
-                return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
+                if (key.StartsWith("vnp_", StringComparison.Ordinal) &&
+                    key != "vnp_SecureHash" && key != "vnp_SecureHashType")
+                {
+                    sorted[key] = query[key];
+                }
+            }
+
+            // 3. Build raw data
+            var rawData = new StringBuilder();
+            foreach (var kv in sorted)
+            {
+                rawData.Append(WebUtility.UrlEncode(kv.Key))
+                       .Append('=')
+                       .Append(WebUtility.UrlEncode(kv.Value))
+                       .Append('&');
+            }
+            rawData.Length--; // bỏ ký tự '&' cuối
+
+            // 4. Tính hash
+            var computedHash = HashHelper.HmacSHA512(_vnpHashSecret, rawData.ToString());
+            if (!string.Equals(computedHash, vnpSecureHash, StringComparison.OrdinalIgnoreCase))
+                return (false, null, null);
+
+            // 5. Xác thực và cập nhật trạng thái
+            int paymentId = int.Parse(query["vnp_TxnRef"]);
+            var payment = await _paymentRepository.GetByIdAsync(paymentId);
+            if (payment == null) return (false, null, null);
+
+            var responseCode = query["vnp_ResponseCode"].ToString();
+            payment.StatusId = responseCode == "00" ? "Success" : "Failed";
+            payment.TransactionNo = query["vnp_TransactionNo"];
+            payment.ResponseCode = responseCode;
+            payment.PaymentDate = GetVietnamTime();
+            payment.UpdatedAt = GetVietnamTime();
+            await _paymentRepository.UpdateAsync(payment);
+
+            return (true, payment.StatusId, payment.TransactionNo);
+        }
+
+        // Xây dựng dữ liệu thô để tạo hash
+        private string BuildRawData(SortedList<string, string> requestData)
+        {
+            StringBuilder data = new StringBuilder();
+            foreach (KeyValuePair<string, string> kv in requestData)
+            {
+                if (!string.IsNullOrEmpty(kv.Value))
+                {
+                    data.Append(WebUtility.UrlEncode(kv.Key) + "=" + WebUtility.UrlEncode(kv.Value) + "&");
+                }
+            }
+            return data.ToString().TrimEnd('&');
+        }
+
+        private string GenerateSecureHash(string rawData)
+        {
+            return HashHelper.HmacSHA512(_vnpHashSecret, rawData);
+        }
+
+        // Lớp VnpayCompare
+        public class VnpayCompare : IComparer<string>
+        {
+            public int Compare(string x, string y)
+            {
+                return string.CompareOrdinal(x, y);
             }
         }
-        public async Task<string> UpdatePaymentUrlAsync(int paymentId)
-{
-    var payment = await _paymentRepository.GetByIdAsync(paymentId);
-    if (payment == null)
-    {
-        throw new Exception("Payment not found");
-    }
 
-    if (payment.StatusId == "Success")
-    {
-        throw new Exception("Cannot update a successful payment");
-    }
+        // Lớp HashHelper
+        public static class HashHelper
+        {
+            public static string HmacSHA512(string key, string inputData)
+            {
+                var encoding = new System.Text.UTF8Encoding();
+                byte[] keyBytes = encoding.GetBytes(key);
+                byte[] messageBytes = encoding.GetBytes(inputData);
+                using (var hmacsha512 = new System.Security.Cryptography.HMACSHA512(keyBytes))
+                {
+                    byte[] hashmessage = hmacsha512.ComputeHash(messageBytes);
+                    return BitConverter.ToString(hashmessage).Replace("-", "").ToLower();
+                }
+            }
+        }
 
-    string vnp_TxnRef = payment.Id.ToString(); // vẫn giữ nguyên transaction ref cũ
-    string vnp_IpAddr = "127.0.0.1"; // nên lấy IP thực
-    string vnp_CreateDate = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
-
-    var vnp_Params = new Dictionary<string, string>
-    {
-        { "vnp_Version", "2.1.0" },
-        { "vnp_Command", "pay" },
-        { "vnp_TmnCode", _vnpTmnCode },
-        { "vnp_Amount", ((long)(payment.Amount * 100)).ToString() },
-        { "vnp_CurrCode", "VND" },
-        { "vnp_TxnRef", vnp_TxnRef },
-        { "vnp_OrderInfo", $"Thanh toán lại đơn #{payment.Id}" },
-        { "vnp_OrderType", "other" },
-        { "vnp_Locale", "vn" },
-        { "vnp_ReturnUrl", _vnpReturnUrl },
-        { "vnp_IpAddr", vnp_IpAddr },
-        { "vnp_CreateDate", vnp_CreateDate }
-    };
-
-    var expireDate = DateTime.UtcNow.AddMinutes(15);
-    vnp_Params.Add("vnp_ExpireDate", expireDate.ToString("yyyyMMddHHmmss"));
-
-    var fieldNames = vnp_Params.Keys.ToList();
-    fieldNames.Sort();
-    var hashData = string.Join("&", fieldNames.Select(key => $"{key}={vnp_Params[key]}"));
-    var vnp_SecureHash = HmacSHA256(_vnpHashSecret, hashData);
-
-    vnp_Params.Add("vnp_SecureHash", vnp_SecureHash);
-
-    var queryString = string.Join("&", vnp_Params.Select(kvp => $"{kvp.Key}={Uri.EscapeDataString(kvp.Value)}"));
-    var newUrl = $"{_vnpayUrl}?{queryString}";
-
-    // (Tùy chọn) Cập nhật lại updatedAt
-    payment.UpdatedAt = DateTime.UtcNow;
-    await _paymentRepository.UpdateAsync(payment);
-
-    return newUrl;
-}
-
-       
+        // Lấy thời gian theo múi giờ Việt Nam (UTC+7)
+        private DateTime GetVietnamTime()
+        {
+            TimeZoneInfo vietnamZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"); // Múi giờ Việt Nam
+            return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vietnamZone);
+        }
     }
 }
+

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Services.DTO;
 using Services.PaymentSS;
+using static Org.BouncyCastle.Math.EC.ECCurve;
 
 namespace WebApplication1.Controllers
 {
@@ -10,34 +11,58 @@ namespace WebApplication1.Controllers
     public class PaymentController : ControllerBase
     {
         private readonly IPaymentService _paymentService;
-
-        public PaymentController(IPaymentService paymentService)
+        private readonly IConfiguration _config;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public PaymentController( IConfiguration config, IHttpContextAccessor httpContextAccessor,
+            IPaymentService paymentService)
         {
             _paymentService = paymentService;
+            _config = config;
+            _httpContextAccessor = httpContextAccessor;
         }
-
-        [HttpPost("create")]
-        public async Task<IActionResult> CreatePayment([FromBody] CreatePaymentRequest request)
+        [HttpPost("vnpay")]
+        public async Task<IActionResult> CreateVnpayPayment([FromBody] PaymentRequestDTO request)
         {
-            var url = await _paymentService.CreatePaymentUrl(request);
-            return Ok(new { paymentUrl = url });
+            if (request == null || request.Amount <= 0)
+            {
+                return BadRequest(new { error = "Invalid payment request" });
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var paymentUrl = await _paymentService.CreatePaymentUrl(request.UserId, request.RequestId, request.Amount, request.OrderInfo ?? "Payment for request");
+            return Ok(new { PaymentUrl = paymentUrl });
         }
 
+
+        /// <summary>
+        /// Xử lý phản hồi từ VNPay (Return URL)
+        /// </summary>
         [HttpGet("payment-return")]
-        public IActionResult PaymentReturn()
+        public async Task<IActionResult> HandleVnpayReturn()
         {
-            if (!_paymentService.ValidateVNPaySignature(Request.Query))
-            {
-                return BadRequest("Chữ ký VNPay không hợp lệ");
-            }
-            {
-                return BadRequest("Chữ ký VNPay không hợp lệ");
-            }
-           
-           
+            // Lấy toàn bộ query string đã được VNPay gửi về
+            var query = HttpContext.Request.Query;
 
-            // Tiếp tục xử lý: cập nhật trạng thái thanh toán, hiển thị kết quả...
-            return Ok("Xác minh chữ ký thành công");
+            // Gọi service để xác thực hash và cập nhật payment record
+            var (isValid, status, transactionNo) =
+                await _paymentService.ProcessVnpayReturn(query);
+
+            if (!isValid)
+                return BadRequest(new { error = "Invalid secure hash or payment not found" });
+
+            if (status == "Success")
+                return Ok(new { Message = "Payment successful", TransactionId = transactionNo });
+
+            return Ok(new { Message = "Payment failed", ResponseCode = status });
         }
-    }
+    
+    // Cập nhật trạng thái thanh toán
+
 }
+
+}
+
