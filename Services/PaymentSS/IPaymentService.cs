@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Model;
+using Repositories.Pagging;
 using Services.DTO;
 using System;
 using System.Collections.Generic;
@@ -16,5 +18,11 @@ namespace Services.PaymentSS
         //Task<string> UpdatePaymentUrlAsync(int paymentId);
 
         //bool ValidateVNPaySignature(IQueryCollection query);
+
+
+        Task<PaginatedList<Payment>> GetPaymentsByUserAsync(
+            int userId, int pageNumber, int pageSize);
+
+        Task<PaymentDetailDTO?> GetPaymentDetailAsync(int paymentId);
     }
 }

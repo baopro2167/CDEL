@@ -2,7 +2,11 @@
 using Microsoft.Extensions.Configuration;
 using Model;
 using Org.BouncyCastle.Asn1.Pkcs;
+using Repositories.ExRequestRepo;
+using Repositories.Pagging;
 using Repositories.PaymentRepo;
+using Repositories.SampleMethodRepo;
+using Repositories.ServiceRepo;
 using Services.DTO;
 using System;
 using System.Collections.Generic;
@@ -18,7 +22,9 @@ namespace Services.PaymentSS
     public class PaymentService : IPaymentService
     {
         private readonly IPaymentRepository _paymentRepository;
-
+        private readonly IExRequestRepository _reqRepo;
+        private readonly IServiceRepository _svcRepo;
+        private readonly ISampleMethodRepository _smRepo;
         private readonly string _vnpayUrl;
         private readonly string _vnpTmnCode;
         private readonly string _vnpHashSecret;
@@ -29,8 +35,13 @@ namespace Services.PaymentSS
         // Property IP động lấy từ HttpContext
         public string? IpAddress => _httpContextAccessor?.HttpContext?.Connection?.RemoteIpAddress?.ToString();
         public PaymentService(IPaymentRepository paymentRepository, IConfiguration configuration
-              , IHttpContextAccessor httpContextAccessor)
+              , IHttpContextAccessor httpContextAccessor, IExRequestRepository reqRepo,
+            IServiceRepository svcRepo,
+            ISampleMethodRepository smRepo                              )
         {
+            _reqRepo = reqRepo;
+            _svcRepo = svcRepo;
+            _smRepo = smRepo;
             _paymentRepository = paymentRepository;
             _vnpayUrl = configuration["VNPaySettings:VnpUrl"]; // Sử dụng sandbox cho test
             _vnpTmnCode = configuration["VNPaySettings:VnpTmnCode"];
@@ -38,6 +49,37 @@ namespace Services.PaymentSS
             _vnpReturnUrl = configuration["VNPaySettings:VnpReturnUrl"];
             _httpContextAccessor = httpContextAccessor;
         }
+        public async Task<PaymentDetailDTO?> GetPaymentDetailAsync(int paymentId)
+        {
+            var p = await _paymentRepository.GetByIdAsync(paymentId);
+            if (p == null) return null;
+
+            var er = await _reqRepo.GetByIdAsync(p.RequestId);
+            if (er == null) return null;
+
+            var svc = await _svcRepo.GetByIdAsync(er.ServiceId);
+            var sm = await _smRepo.GetByIdAsync(er.SampleMethodId);
+
+            return new PaymentDetailDTO
+            {
+                PaymentId = p.Id,
+                RequestId = p.RequestId,
+                Amount = p.Amount,
+                StatusId = p.StatusId,
+                TransactionNo = p.TransactionNo ?? "",
+                ResponseCode = p.ResponseCode ?? "",
+                PaymentDate = p.PaymentDate,
+                CreatedAt = p.CreatedAt,
+                UpdatedAt = p.UpdatedAt,
+
+              
+                ServiceName = svc?.Name ?? "",
+                SampleMethodName = sm?.Name ?? ""
+            };
+        }
+
+
+
         public async Task<string> CreatePaymentUrl(int userId, int requestId, decimal amount, string orderInfo)
         {
             var payment = new Model.Payment
@@ -169,6 +211,42 @@ namespace Services.PaymentSS
             TimeZoneInfo vietnamZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"); // Múi giờ Việt Nam
             return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vietnamZone);
         }
+
+
+        public async Task<PaginatedList<Payment>> GetPaymentsByUserAsync(
+            int userId, int pageNumber, int pageSize)
+        {
+            // Lấy PaginatedList<Payment>
+            var paged = await _paymentRepository
+                .GetByUserIdAsync(userId, pageNumber, pageSize);
+
+            // Map sang DTO
+            var dtoItems = paged.Items.Select(p => new Payment
+            {
+                Id = p.Id,
+                UserId = p.UserId,
+                RequestId = p.RequestId,
+                Amount = p.Amount,
+                StatusId = p.StatusId,
+                TransactionNo = p.TransactionNo,
+                ResponseCode = p.ResponseCode,
+                PaymentDate = p.PaymentDate,
+                CreatedAt = p.CreatedAt,
+                UpdatedAt = p.UpdatedAt
+            }).ToList();
+
+            // Trả về PaginatedList<PaymentResponseDTO>
+            return new PaginatedList<Payment>(
+                dtoItems,
+                paged.TotalCount,
+                paged.PageNumber,
+                paged.PageSize
+            );
+        }
+
+
+
+
     }
 }
 

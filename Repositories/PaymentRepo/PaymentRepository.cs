@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Model;
+using Repositories.Pagging;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,7 +40,18 @@ namespace Repositories.PaymentRepo
             _context.Payments.Update(payment);
             await _context.SaveChangesAsync();
         }
+        public async Task<PaginatedList<Payment>> GetByUserIdAsync(
+             int userId, int pageNumber, int pageSize)
+        {
+            var query = _context.Payments
+                .Where(p => p.UserId == userId)
+                .OrderByDescending(p => p.CreatedAt);
 
+            return await PaginatedList<Payment>
+                .CreateAsync(query, pageNumber, pageSize);
+        }
+        
+        }
 
     }
-}
+

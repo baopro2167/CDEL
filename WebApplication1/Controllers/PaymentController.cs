@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Model;
+using Repositories.Pagging;
 using Services.DTO;
 using Services.PaymentSS;
 using static Org.BouncyCastle.Math.EC.ECCurve;
@@ -59,10 +61,43 @@ namespace WebApplication1.Controllers
 
             return Ok(new { Message = "Payment failed", ResponseCode = status });
         }
-    
-    // Cập nhật trạng thái thanh toán
 
-}
+        // Cập nhật trạng thái thanh toán
+
+
+        /// <summary>
+        /// Lấy danh sách payments theo userId, phân trang
+        /// </summary>
+        [HttpGet("user/{userId}")]
+        public async Task<IActionResult> GetPaymentsByUser(
+    int userId, int pageNumber, int pageSize)
+        { 
+            PaginatedList<Payment> result =
+                await _paymentService.GetPaymentsByUserAsync(userId, pageNumber, pageSize);
+
+            if (!result.Items.Any())
+                return NotFound(new { message = $"Không có payment cho userId = {userId}" });
+
+            
+
+            return Ok(result);
+        }
+        /// <summary>
+        /// Lấy chi tiết payment kèm thông tin service và sample method
+        /// </summary>
+        [HttpGet("details/{paymentId}")]
+        public async Task<IActionResult> GetPaymentDetails(int paymentId)
+        {
+            PaymentDetailDTO? dto = await _paymentService.GetPaymentDetailAsync(paymentId);
+            if (dto == null)
+                return NotFound(new { message = $"PaymentId = {paymentId} not found" });
+
+            return Ok(dto);
+        }
+
+
+
+    }
 
 }
 
