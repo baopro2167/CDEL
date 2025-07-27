@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Model;
+using Microsoft.Extensions.Hosting;
 using Org.BouncyCastle.Asn1.Pkcs;
 using Repositories.ExRequestRepo;
 using Repositories.Pagging;
@@ -21,6 +22,7 @@ namespace Services.PaymentSS
 {
     public class PaymentService : IPaymentService
     {
+        private readonly IHostEnvironment _env;
         private readonly IPaymentRepository _paymentRepository;
         private readonly IExRequestRepository _reqRepo;
         private readonly IServiceRepository _svcRepo;
@@ -37,8 +39,10 @@ namespace Services.PaymentSS
         public PaymentService(IPaymentRepository paymentRepository, IConfiguration configuration
               , IHttpContextAccessor httpContextAccessor, IExRequestRepository reqRepo,
             IServiceRepository svcRepo,
-            ISampleMethodRepository smRepo                              )
+            ISampleMethodRepository smRepo ,
+             IHostEnvironment env )
         {
+            _env = env;
             _reqRepo = reqRepo;
             _svcRepo = svcRepo;
             _smRepo = smRepo;

@@ -4,6 +4,7 @@ using Model;
 using Repositories.Pagging;
 using Services.DTO;
 using Services.PaymentSS;
+using Microsoft.AspNetCore.WebUtilities;
 using static Org.BouncyCastle.Math.EC.ECCurve;
 
 namespace WebApplication1.Controllers
@@ -46,21 +47,23 @@ namespace WebApplication1.Controllers
         [HttpGet("payment-return")]
         public async Task<IActionResult> HandleVnpayReturn()
         {
-            // Lấy toàn bộ query string đã được VNPay gửi về
-            var query = HttpContext.Request.Query;
-
-            // Gọi service để xác thực hash và cập nhật payment record
-            var (isValid, status, transactionNo) =
-                await _paymentService.ProcessVnpayReturn(query);
-
+            var (isValid, status, transactionNo) = await _paymentService.ProcessVnpayReturn(Request.Query);
             if (!isValid)
-                return BadRequest(new { error = "Invalid secure hash or payment not found" });
+                return BadRequest("Invalid signature");
 
-            if (status == "Success")
-                return Ok(new { Message = "Payment successful", TransactionId = transactionNo });
+            // URL frontend đã được cấu hình (giống với VnpReturnUrl)
+            var frontendUrl = _config["VNPaySettings:VnpReturnUrl"];
 
-            return Ok(new { Message = "Payment failed", ResponseCode = status });
+            // Thêm query string để frontend có thể hiển thị status/transaction
+            var redirectUrl = QueryHelpers.AddQueryString(frontendUrl, new Dictionary<string, string>
+            {
+                ["status"] = status,
+                ["transactionNo"] = transactionNo
+            });
+
+            return Redirect(redirectUrl);
         }
+        
 
         // Cập nhật trạng thái thanh toán
 
